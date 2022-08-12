@@ -1,16 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0
 use std::thread::spawn;
 
 fn main() {
-    if let Err(e) = spawn(hello).join() {
-        eprintln!("function thread join error: {e:?}");
-    }
+    let v = 10;
+    let f = move || v * 2;
 
-    let h = || println!("hello world from closure");
-    if let Err(e) = spawn(h).join() {
-        eprintln!("closure thread join error: {e:?}");
-    }
-}
+    let result = spawn(f).join();
+    println!("result is {:?}", result);
 
-fn hello() {
-    println!("hello world from function");
+    match spawn(|| panic!("I'm paniced")).join() {
+        Ok(_) => println!("successed"),
+        Err(e) => {
+            let s = e.downcast_ref::<&str>();
+            println!("failed: {:?}", s);
+        }
+    }
 }

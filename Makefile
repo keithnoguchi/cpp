@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
-.PHONY: subsystem clean
+.PHONY: all clean subsystem
+
+all: clean subsystem
+	cargo clippy
+	cargo build
 
 # https://www.gnu.org/software/make/manual/html_node/Recursion.html
 subsystem:

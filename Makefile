@@ -2,6 +2,7 @@
 .PHONY: all clean subsystem
 
 all: clean subsystem
+	cargo check
 	cargo clippy
 	cargo build
 

@@ -25,12 +25,12 @@ impl<T> SpinLock<T> {
             // spinning for the lock.
             while self.lock.load(Ordering::Relaxed) {}
 
-            if let Ok(_) = self.lock.compare_exchange_weak(
+            if self.lock.compare_exchange_weak(
                 false,
                 true,
                 Ordering::Acquire, // ordering for success
                 Ordering::Relaxed, // ordering for failure
-            ) {
+            ).is_ok() {
                 break;
             }
         }

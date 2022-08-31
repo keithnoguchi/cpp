@@ -1,6 +1,6 @@
 //! SPDX-License-Identifier: GPL-2.0
 use std::cell::UnsafeCell;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(Debug)]
@@ -60,5 +60,11 @@ impl<'a, T> Deref for SpinLockGuard<'a, T> {
 
     fn deref(&self) -> &Self::Target {
         unsafe { &*self.spin_lock.data.get() }
+    }
+}
+
+impl<'a, T> DerefMut for SpinLockGuard<'a, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { &mut *self.spin_lock.data.get() }
     }
 }

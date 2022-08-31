@@ -18,7 +18,8 @@ fn main() {
         let counter0 = counter.clone();
         workers.push(thread::spawn(move || {
             for _ in 0..NUM_LOOP {
-                let _counter = counter0.lock();
+                let mut counter = counter0.lock();
+                *counter += 1;
             }
         }));
     }
@@ -29,5 +30,7 @@ fn main() {
         }
     }
 
-    println!("counter holds {}", *counter.lock());
+    let result = *counter.lock();
+    println!("counter holds {:#}", result);
+    assert_eq!(result, NUM_THREADS * NUM_LOOP);
 }

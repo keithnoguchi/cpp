@@ -23,7 +23,11 @@ impl<T> SpinLock<T> {
     pub fn lock(&self) -> SpinLockGuard<T> {
         loop {
             // spinning for the lock.
-            while self.lock.load(Ordering::Relaxed) {}
+            while self.lock.load(Ordering::Relaxed) {
+                // Just for the compiler to emit a
+                // better assembly code.
+                std::hint::spin_loop();
+            }
 
             if self.lock.compare_exchange_weak(
                 false,

@@ -45,3 +45,11 @@ impl<T> SpinLock<T> {
         SpinLockGuard { spin_lock: self }
     }
 }
+
+unsafe impl<T> Sync for SpinLock<T> {}
+
+impl<'a, T> Drop for SpinLockGuard<'a, T> {
+    fn drop(&mut self) {
+        self.spin_lock.lock.store(false, Ordering::Relaxed)
+    }
+}

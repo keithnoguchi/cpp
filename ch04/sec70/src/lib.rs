@@ -29,12 +29,16 @@ impl<T> SpinLock<T> {
                 std::hint::spin_loop();
             }
 
-            if self.lock.compare_exchange_weak(
-                false,
-                true,
-                Ordering::Acquire, // ordering for success
-                Ordering::Relaxed, // ordering for failure
-            ).is_ok() {
+            if self
+                .lock
+                .compare_exchange_weak(
+                    false,
+                    true,
+                    Ordering::Acquire, // ordering for success
+                    Ordering::Relaxed, // ordering for failure
+                )
+                .is_ok()
+            {
                 break;
             }
         }

@@ -29,5 +29,5 @@ fn main() {
         }
     }
 
-    println!("{counter:?}");
+    println!("counter holds {}", *counter.lock());
 }

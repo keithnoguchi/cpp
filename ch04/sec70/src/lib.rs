@@ -1,11 +1,12 @@
 //! SPDX-License-Identifier: GPL-2.0
 use std::cell::UnsafeCell;
+use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(Debug)]
 pub struct SpinLock<T> {
     lock: AtomicBool,
-    _data: UnsafeCell<T>,
+    data: UnsafeCell<T>,
 }
 
 pub struct SpinLockGuard<'a, T> {
@@ -16,7 +17,7 @@ impl<T> SpinLock<T> {
     pub fn new(v: T) -> Self {
         Self {
             lock: AtomicBool::new(false),
-            _data: UnsafeCell::new(v),
+            data: UnsafeCell::new(v),
         }
     }
 
@@ -51,5 +52,13 @@ unsafe impl<T> Sync for SpinLock<T> {}
 impl<'a, T> Drop for SpinLockGuard<'a, T> {
     fn drop(&mut self) {
         self.spin_lock.lock.store(false, Ordering::Relaxed)
+    }
+}
+
+impl<'a, T> Deref for SpinLockGuard<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*self.spin_lock.data.get() }
     }
 }

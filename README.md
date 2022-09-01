@@ -3,7 +3,14 @@
 Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 [Concurrent Programming].
 
-## Execution
+## Locks
+
+Here is the list of example locks explained in the book:
+
+- [SpinLock](ch04/sec70/src/lib.rs)
+- [FairLock](ch07/sec11/src/lib.rs)
+
+## Run
 
 It's organized by the different executable crate per each sections
 and managed by the [cargo workspace].  Hence, you can run all the

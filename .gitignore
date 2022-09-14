@@ -1,2 +1,3 @@
 target/
-sec342
+*.o
+sec*[12]

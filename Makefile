@@ -9,6 +9,7 @@ all: clean subsystem
 # https://www.gnu.org/software/make/manual/html_node/Recursion.html
 subsystem:
 	$(MAKE) -C ch02/sec21
+	$(MAKE) -C ch02/sec22
 	$(MAKE) -C ch03/sec42
 
 clean:

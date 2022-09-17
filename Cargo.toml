@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "ch02/sec31",
     "ch02/sec39",
     "ch03/sec81",
     "ch04/sec70",

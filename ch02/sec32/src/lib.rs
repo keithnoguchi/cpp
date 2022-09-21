@@ -10,6 +10,7 @@ pub fn add(x: u32, y: u32) -> u32 {
 }
 
 /// 2.3.2.3 If Expressions
+#[allow(clippy::needless_bool)]
 pub fn is_even(n: u32) -> bool {
     if n % 2 == 0 {
         true
@@ -47,7 +48,7 @@ pub fn even_odd2(max: u32) {
 
 /// 2.3.2.7 References and Dereferences
 pub fn mul(x: &mut u64, y: &u64) {
-    *x *= *x * *y
+    *x = *x * *x * *y
 }
 
 /// 2.3.2.8 Function Pointers

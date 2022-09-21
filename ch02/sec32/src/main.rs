@@ -11,9 +11,9 @@ fn main() {
     // Section 2.3.2.3 If expressions
     let (x, y) = (11, 2);
     let r = is_even(x);
-    assert_eq!(r, false);
+    assert!(!r);
     let r = is_even(y);
-    assert_eq!(r, true);
+    assert!(r);
 
     // Section 2.3.2.4 Match Expressions
     let (x, y) = (10000, 0);

@@ -12,21 +12,19 @@ Here is the list of example locks explained in the book:
 
 ## Run
 
-It's organized by the different executable crate per each sections
-and managed by the [cargo workspace].  Hence, you can run all the
-executable crates with the `cargo run` command from the top directory.
-
-
-```
-$ cargo run
-```
-
-You can also run the individual sections by moving into it and run
-`cargo run`:
+Each sections are cargo crate to be self contained.  And since
+we use [cargo workspace] to organize those crate, you can't
+run `cargo run` in the top directory.  You either go into
+each sub directory to run `cargo run`, or use one of the
+cargo sub command, e.g. `cargo check` in the top directory:
 
 ```
-$ cd ch02/sec239
-$ cargo run
+top$ cargo check
+```
+
+```
+top$ cd ch02/sec239
+ch02/sec239$ cargo run
 ```
 
 Happy Hacking!

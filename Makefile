@@ -14,6 +14,7 @@ subsystem:
 	$(MAKE) -C ch03/sec42
 
 clean:
+	cargo clean
 	$(MAKE) -C ch02/sec21 $@
 	$(MAKE) -C ch02/sec22 $@
 	$(MAKE) -C ch02/sec23 $@

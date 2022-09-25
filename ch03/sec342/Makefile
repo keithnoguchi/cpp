@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0
+.PHONY: all sections clean
 PROG := sec342
 CFLAGS := -Wall -Werror
 
-all: $(PROG)
+all sections: $(PROG)
 $(PROG): main.c
-	$(CC) $(CFLAGS) -o $(PROG) $<
-.PHONY: clean
+	@$(CC) $(CFLAGS) -o $(PROG) $^
 clean:
 	@$(RM) $(PROG)

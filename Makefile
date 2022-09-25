@@ -9,9 +9,9 @@ all: clean subsystem
 # https://www.gnu.org/software/make/manual/html_node/Recursion.html
 subsystem:
 	$(MAKE) -C ch02
-	$(MAKE) -C ch03/sec42
+	$(MAKE) -C ch03
 
 clean:
 	cargo clean
 	$(MAKE) -C ch02 $@
-	$(MAKE) -C ch03/sec42 $@
+	$(MAKE) -C ch03 $@

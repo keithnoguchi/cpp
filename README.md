@@ -24,12 +24,13 @@ each sub directory to run `cargo run`, or use one of the
 cargo sub command, e.g. `cargo check` in the top directory:
 
 ```
-top$ cargo check
+cpr$ cargo check
 ```
 
 ```
-top$ cd ch02/sec239
-ch02/sec239$ cargo run
+cpr$ cd ch02/sec239
+ch02/sec239
+cpr$ cargo run
 ```
 
 Happy Hacking!

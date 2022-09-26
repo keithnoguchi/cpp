@@ -3,6 +3,11 @@
 Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 [Concurrent Programming].
 
+## Atomic Primitives
+
+- [CAS: Compare And Swap](ch03/sec321/compare_and_swap.s)
+- [TAS: Test And Set](ch03/sec322/test_and_set.s)
+
 ## Locks
 
 Here is the list of example locks explained in the book:

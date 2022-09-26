@@ -7,4 +7,5 @@ all chapters: sections
 	@cargo build
 %:
 	@$(MAKE) -C sec321 $@
+	@$(MAKE) -C sec322 $@
 	@$(MAKE) -C sec342 $@

@@ -4,5 +4,7 @@ CFLAGS := -O3 -S -Wimplicit-function-declaration
 
 all sections: compare_and_swap_not.c compare_and_swap.c
 	@$(CC) $(CFLAGS) $^
+# https://www.gnu.org/s/make/manual/html_node/Empty-Recipes.html
+run r: ;
 clean:
 	@$(RM) *.s

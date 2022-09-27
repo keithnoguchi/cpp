@@ -7,6 +7,6 @@ all sections: $(TARGET)
 $(TARGET): main.c
 	@$(CC) $(CFLAGS) $^ -o $@
 run r: $(TARGET)
-	@./$(TARGET)
+	@./$<
 clean:
 	@$(RM) $(TARGET)

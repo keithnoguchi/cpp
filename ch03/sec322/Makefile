@@ -4,5 +4,7 @@ CFLAGS := -O3 -S -Wimplicit-function-declaration
 
 all sections: test_and_set_not.c test_and_set.c
 	@$(CC) $(CFLAGS) $^
+# https://www.gnu.org/s/make/manual/html_node/Empty-Recipes.html
+run r: ;
 clean:
 	@$(RM) *.s

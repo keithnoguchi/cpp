@@ -9,4 +9,5 @@ all chapters: sections
 	@$(MAKE) -C sec321 $@
 	@$(MAKE) -C sec322 $@
 	@$(MAKE) -C sec330 $@
+	@$(MAKE) -C sec331 $@
 	@$(MAKE) -C sec342 $@

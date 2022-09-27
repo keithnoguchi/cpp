@@ -8,6 +8,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [CAS: Compare And Swap](ch03/sec321/compare_and_swap.s)
 - [TAS: Test And Set](ch03/sec322/test_and_set.s)
 - [Mutex by TAS](ch03/sec330/main.c)
+- [Spinlock by TTAS](ch03/sec331/lib.c)
 
 ## Locks
 

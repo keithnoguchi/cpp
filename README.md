@@ -30,9 +30,15 @@ cpr$ cargo check
 ```
 
 ```
-cpr$ cd ch02/sec239
-ch02/sec239
-cpr$ cargo run
+cpr$ $(cd ch02/sec239 && cargo run)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+     Running `/home/cpr/target/debug/sec239`
+Hello world
+success: ()
+success: 20
+thread '<unnamed>' panicked at 'oops', ch02/sec239/src/main.rs:28:20
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: Some("oops")
 ```
 
 Happy Hacking!

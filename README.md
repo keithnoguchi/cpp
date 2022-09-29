@@ -9,6 +9,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [TAS: Test And Set](ch03/sec322/test_and_set.s)
 - [Mutex by TAS](ch03/sec330/main.c)
 - [Spinlock by TTAS](ch03/sec331/lib.c)
+- [Posix Mutex](ch03/sec332/main.c)
 
 ## Locks
 

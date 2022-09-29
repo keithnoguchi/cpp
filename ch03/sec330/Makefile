@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0
-.PHONY: all run r
-CFLAGS := -Wall -O2
-TARGET := sec330
+.PHONY: all sections r run c clean
+CFLAGS := -Wall -Werror -O2
+TARGET := $(notdir $(CURDIR))
 
 all sections: $(TARGET)
 $(TARGET): main.c
 	@$(CC) $(CFLAGS) $^ -o $@
-run r: $(TARGET)
+r run: $(TARGET)
 	@./$<
-clean:
-	@$(RM) $(TARGET)
+c clean:
+	@$(RM) -f $(TARGET) *.o

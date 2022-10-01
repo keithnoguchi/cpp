@@ -1,95 +1,74 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* 3.4.2 Posix Semaphore */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <pthread.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <semaphore.h>
 
-#define NUM_THREADS	10
-#define NUM_LOOP	10
+#define NR_THREADS 20000
 
-int count = 0;
+/* retry sem_open() in case there is a stable semaphore */
+#define NR_SEM_OPEN 5
+#define SEM_OPEN_SLEEP_US 10000 /* 10ms */
 
-/* worker thread */
-static void *worker(void *arg)
+/* worker defined in lib.c */
+extern void *worker(void *arg);
+
+/* global variables, shared by workers in lib.c */
+const unsigned int semaphore_count = 3;
+const char *semaphore_name = "/cpr-sec342-semaphore";
+uint64_t counter;
+
+int main(int argc, const char *const argv[])
 {
-	sem_t *s = sem_open("/mysemaphore", 0);
-	if (s == SEM_FAILED) {
-		perror("sem_open");
-		exit(1);
-	}
+	const char *progname = argv[0];
+	pthread_t *p, *workers;
+	sem_t *sem = NULL;
+	intptr_t id;
 
-	for (int i = 0; i < NUM_LOOP; i++) {
-		if (sem_wait(s) == -1) {
-			perror("sem_wait");
-			exit(1);
-		}
-
-		/* increment the counter atomically. */
-		__sync_fetch_and_add(&count, 1);
-		printf("count = %d\n", count);
-
-		/* 10ms sleep */
-		usleep(10000);
-
-		/* decrement the counter atomically */
-		__sync_fetch_and_sub(&count, 1);
-
-		if (sem_post(s) == -1) {
-			perror("sem_post");
-			exit(1);
-		}
-	}
-
-	if (sem_close(s) == -1)
-		perror("sem_close");
-
-	return NULL;
-}
-
-int main()
-{
-	/* semaphore with 3 */
-	sem_t *s = sem_open("/mysemaphore", O_CREAT, 0660, 3);
-	if (s == SEM_FAILED) {
-		perror("sem_open");
+	workers = malloc(sizeof(pthread_t) * NR_THREADS);
+	if (!workers)
 		goto err;
+
+	for (int i = 0; i < NR_SEM_OPEN; i++) {
+		sem = sem_open(semaphore_name, O_CREAT, 0666, semaphore_count);
+		if (sem)
+			break;
+		/* let's retry after the sleep */
+		usleep(SEM_OPEN_SLEEP_US * i);
 	}
-
-	/* initial count */
-	printf("count = %d\n", count);
-
-	/* create workers */
-	pthread_t workers[NUM_THREADS];
-	for (int i = 0; i < NUM_THREADS; i++) {
-		int ret = pthread_create(&workers[i], NULL, worker, NULL);
-		if (ret == -1) {
-			perror("pthread_create");
+	if (!sem)
+		goto err;
+	for (p = workers, id = 0; id < NR_THREADS; p++, id++) {
+		int ret = pthread_create(p, NULL, worker, (void *)id);
+		if (ret != 0)
 			goto err;
-		}
 	}
-
-	/* wait for all the workers to complete */
-	for (int i = 0; i < NUM_THREADS; i++) {
-		/* ignore the return value */
-		pthread_join(workers[i], NULL);
+	for (p = workers, id = 0; id < NR_THREADS; p++, id++) {
+		intptr_t got;
+		int ret = pthread_join(*p, (void *)&got);
+		if (ret != 0)
+			goto err;
+		if (got < 0)
+			goto err;
 	}
-
-	/* final count, this should be zero always */
-	printf("count = %d\n", count);
-
-	if (sem_close(s) == -1) {
-		perror("sem_close");
+	if (sem_close(sem) != 0)
 		goto err;
-	}
-
-	if (sem_unlink("/mysemaphore") == -1) {
-		perror("sem_unlink");
+	if (sem_unlink(semaphore_name) != 0)
 		goto err;
-	}
-
-	return EXIT_SUCCESS;
+	free(workers);
+	exit(EXIT_SUCCESS);
 err:
-	return EXIT_FAILURE;
+	perror(progname);
+	if (sem) {
+		/* no error check here... */
+		sem_close(sem);
+		sem_unlink(semaphore_name);
+	}
+	if (workers)
+		free(workers);
+	exit(EXIT_FAILURE);
 }

@@ -1,14 +1,21 @@
-/* 3.6.1 Memory Barrier by Spinlock */
+/* 3.6.2 Memory Barrier by Posix Condition Variables */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
-#include <assert.h>
 
-/* 200 is a reasonal number I can go without melting my quad core MBA. */
-#define NR_THREADS 200
+/*
+ * 20k workers seems to be the memroy limit on my 8G MBA.
+ *
+ * It's 100 times more workers than the [spinlock] version, though.
+ *
+ * [spinlock]: * https://github.com/keithnoguchi/cpr/ch03/sec361/main.c
+ */
+#define NR_THREADS 20000
 
-extern void barrier(volatile int *cnt, const int max);
+/* in lib.c */
+extern void barrier(volatile int *cnt, const int max, const char *name);
+
 static volatile int counter = 0;
 
 static void *worker(void *arg)
@@ -16,9 +23,8 @@ static void *worker(void *arg)
 	intptr_t id = (intptr_t)arg;
 	char name[BUFSIZ];
 
-	/* wait on the barrier */
 	snprintf(name, sizeof(name), "worker%ld", id);
-	barrier(&counter, NR_THREADS);
+	barrier(&counter, NR_THREADS, name);
 
 	return (void *)id;
 }
@@ -38,16 +44,17 @@ int main(int argc, const char *const argv[])
 			goto err;
 
 	for (p = workers, id = 0; id < NR_THREADS; p++, id++) {
-		intptr_t ret;
+		int ret;
 		if (pthread_join(*p, (void **)&ret) != 0)
 			goto err;
-		if (ret != id)
+		if (ret != id) {
+			fprintf(stderr, "worker%ld: error\n", id);
 			goto err;
+		}
 	}
 
+	printf("%s\n", progname);
 	free(workers);
-	printf("%s: counter=%d\n", progname, counter);
-	assert(counter == NR_THREADS);
 
 	exit(EXIT_SUCCESS);
 err:

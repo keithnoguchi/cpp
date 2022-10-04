@@ -14,6 +14,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Posix Semaphore](ch03/sec342/lib.c)
 - [Posix Condition Variable](ch03/sec350/lib.c)
 - [Memory Barrier by Spinlock](ch03/sec361/lib.c)
+- [Memory Barrier by Posix Condition Variable](ch03/sec362/lib.c)
 
 ## Locks
 

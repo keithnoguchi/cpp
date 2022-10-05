@@ -17,3 +17,4 @@ all chapters: sections
 	@$(MAKE) -C sec350 $@
 	@$(MAKE) -C sec361 $@
 	@$(MAKE) -C sec362 $@
+	@$(MAKE) -C sec371 $@

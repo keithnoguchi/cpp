@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 .PHONY: all sections r run c clean
 CFLAGS := -Wall -Werror -O2
-LFLAGS := -lpthread
+LFLAGS :=
 TARGET := $(notdir $(CURDIR))
 
 all sections: $(TARGET)

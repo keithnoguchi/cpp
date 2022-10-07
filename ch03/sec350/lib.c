@@ -52,7 +52,7 @@ void *producer(void *arg)
 	char *p, name[BUFSIZ];
 	size_t len;
 
-	snprintf(name, sizeof(name), "prodcuer%ld", id);
+	snprintf(name, sizeof(name), "producer%ld", id);
 	printf("%s> ", name);
 	p = fgets(buf, sizeof(buf), stdin);
 	if (!p)

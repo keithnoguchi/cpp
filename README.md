@@ -3,7 +3,7 @@
 Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 [Concurrent Programming].
 
-## Primitives
+## Primitives in C
 
 - [CAS: Compare And Swap](ch03/sec321/compare_and_swap.s)
 - [TAS: Test And Set](ch03/sec322/test_and_set.s)
@@ -17,6 +17,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Memory Barrier by Posix Condition Variable](ch03/sec362/lib.c)
 - [R/W Lock by Spinlock](ch03/sec371/lib.c)
 - [Posix R/W Lock](ch03/sec372/lib.c)
+- [Benchmark](ch03/sec373/main.c)
 
 ## Locks
 

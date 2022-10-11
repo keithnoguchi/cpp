@@ -26,6 +26,14 @@ Here is the list of example locks explained in the book:
 - [SpinLock](ch04/sec70/src/lib.rs)
 - [FairLock](ch07/sec11/src/lib.rs)
 
+## Asynchronous Chat Client and Server
+
+This is the example chat client and server application demonstrated
+in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
+2nd Edition:
+
+- [Protocol](chat/protocol/src/lib.rs)
+
 ## Run
 
 Each sections are cargo crate to be self contained.  And since
@@ -55,3 +63,4 @@ Happy Hacking!
 [yuuki takano]: https://scholar.google.co.jp/citations?user=RiH0Kt0AAAAJ&hl
 [concurrent programming]: https://www.oreilly.co.jp/books/9784873119595/
 [cargo workspace]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
+[programming rust]: https://github.com/ProgrammingRust

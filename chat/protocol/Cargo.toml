@@ -7,5 +7,7 @@ authors = ["Keith Noguchi <hack@noguchi.us>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lazy_static = "1"
+regex = "1"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"

@@ -19,6 +19,10 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Posix R/W Lock](ch03/sec372/lib.c)
 - [Benchmark](ch03/sec373/main.c)
 
+## Primitives in Rust
+
+- [Mutex](ch03/sec381/src/lib.rs)
+
 ## Locks
 
 Here is the list of example locks explained in the book:

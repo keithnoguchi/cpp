@@ -38,6 +38,7 @@ in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
 2nd Edition:
 
 - [Protocol](chat/protocol/src/lib.rs)
+- [Packet](chat/packet/src/lib.rs)
 - [Client](chat/client/src/lib.rs)
 
 ## Run

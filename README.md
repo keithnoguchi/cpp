@@ -22,6 +22,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 ## Primitives in Rust
 
 - [Mutex](ch03/sec381/src/lib.rs)
+- [Condition Variable](ch03/sec382/src/lib.rs)
 
 ## Locks
 

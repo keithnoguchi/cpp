@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::sync::Arc;
 
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Serialize)]
 pub enum Request {
     Join {
         group_name: Arc<String>,
@@ -38,7 +38,7 @@ impl TryFrom<String> for Request {
     }
 }
 
-#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Serialize)]
 pub enum Response {
     Message {
         group_name: Arc<String>,

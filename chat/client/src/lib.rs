@@ -17,14 +17,7 @@ pub async fn sender(_addr: &str) -> Result<()> {
     let mut reader = BufReader::new(io::stdin()).lines();
 
     while let Some(line) = reader.next().await {
-        let line = line?;
-        let req = match Request::try_from(&line[..]) {
-            Err(e) => {
-                eprintln!("{e}");
-                continue;
-            },
-            Ok(req) => req,
-        };
+        let req = Request::try_from(line?)?;
         println!("{req:?}");
     }
     Ok(())

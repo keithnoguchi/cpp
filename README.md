@@ -38,9 +38,10 @@ This is the example chat client and server application demonstrated
 in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
 2nd Edition:
 
-- [Protocol](chat/protocol/src/lib.rs)
-- [Packet](chat/packet/src/lib.rs)
-- [Client](chat/client/src/lib.rs)
+- [protocol](chat/protocol/src/lib.rs) crate
+- [packet](chat/packet/src/lib.rs) crate
+- [connection](chat/connection/src/lib.rs) crate
+- [client](chat/client/src/lib.rs) crate
 
 ## Run
 

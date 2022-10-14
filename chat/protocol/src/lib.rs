@@ -16,16 +16,16 @@ pub enum Request {
     },
 }
 
-impl TryFrom<&str> for Request {
-    type Error = &'static str;
-    fn try_from(line: &str) -> Result<Self, Self::Error> {
+impl TryFrom<String> for Request {
+    type Error = String;
+    fn try_from(line: String) -> Result<Self, Self::Error> {
         lazy_static! {
-            static ref JOIN: Regex = Regex::new(r"^\s*join\s*:\s*(\S+)\s*$",).expect("join regex");
-            static ref POST: Regex = Regex::new(r"^\s*(\S+)\s*:\s*(.+)\s*$",).expect("post regex");
+            static ref JOIN: Regex = Regex::new(r"^\s*join\s*(\S+)\s*$",).expect("join regex");
+            static ref POST: Regex = Regex::new(r"^\s*post\s*(\S+)\s*(.+)$",).expect("post regex");
         }
-        match JOIN.captures(line) {
-            None => match POST.captures(line) {
-                None => Err("wrong post"),
+        match JOIN.captures(&line) {
+            None => match POST.captures(&line) {
+                None => Err(format!("wrong post: {line:?}")),
                 Some(match_) => Ok(Self::Post {
                     group_name: Arc::new(match_[1].to_string()),
                     message: Arc::new(match_[2].to_string()),
@@ -87,15 +87,15 @@ mod tests {
     }
 
     #[test]
-    fn request_try_from_str() {
-        let join = "join: dao";
-        let got: Request = join.try_into().unwrap();
+    fn request_try_from_string() {
+        let join = "join dao".to_string();
+        let got = Request::try_from(join).unwrap();
         let want = Request::Join {
             group_name: Arc::new("dao".to_string()),
         };
         assert_eq!(got, want);
-        let post = "dao: let's create dao by 2023";
-        let got: Request = post.try_into().unwrap();
+        let post = "post dao let's create dao by 2023".to_string();
+        let got = Request::try_from(post).unwrap();
         let want = Request::Post {
             group_name: Arc::new("dao".to_string()),
             message: Arc::new("let's create dao by 2023".to_string()),

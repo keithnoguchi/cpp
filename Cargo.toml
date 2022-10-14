@@ -17,5 +17,6 @@ members = [
     "ch07/sec11",
     "chat/protocol",
     "chat/packet",
+    "chat/connection",
     "chat/client",
 ]

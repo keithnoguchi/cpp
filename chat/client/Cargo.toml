@@ -8,3 +8,4 @@ authors = ["Keith Noguchi <hack@noguchi.us>"]
 
 [dependencies]
 async-std = "1.12"
+protocol = { path = "../protocol" }

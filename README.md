@@ -24,6 +24,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Mutex](ch03/sec381/src/lib.rs)
 - [Condition Variable](ch03/sec382/src/lib.rs)
 - [R/W Lock](ch03/sec383/src/lib.rs)
+- [Memory Barrier](ch03/sec384/src/lib.rs)
 
 ## Locks
 

@@ -14,6 +14,7 @@ members = [
     "ch03/sec382",
     "ch03/sec383",
     "ch03/sec384",
+    "ch03/sec385",
     "ch04/sec70",
     "ch07/sec11",
     "chat/protocol",

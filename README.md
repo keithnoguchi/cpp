@@ -26,6 +26,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [R/W Lock](ch03/sec383/src/lib.rs)
 - [Memory Barrier](ch03/sec384/src/lib.rs)
 - [Semaphore](ch03/sec385/src/semaphore.rs)
+- [Channel](ch03/sec385/src/channel.rs)
 
 ## Locks
 

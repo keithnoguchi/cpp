@@ -49,9 +49,15 @@ int main(int argc, char *argv[])
 			goto err;
 	}
 	for (i = 0; i < NR_THREADS; i++) {
-		ret = pthread_join(workers[i], (void **)&ret);
+		intptr_t got;
+		ret = pthread_join(workers[i], (void **)&got);
 		if (ret != 0)
 			goto err;
+		if (got != i) {
+			fprintf(stderr, "worker%d: error(%ld)\n", i, got);
+			goto err;
+		}
+
 	}
 
 	printf("counter = %ld\n", counter);

@@ -45,6 +45,8 @@ in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
 - [protocol](chat/protocol/src/lib.rs) crate
 - [packet](chat/packet/src/lib.rs) crate
 - [connection](chat/connection/src/lib.rs) crate
+- [group](chat/group/Cargo.toml) crate
+  - [Group](chat/group/src/lib.rs) type
 - [client](chat/client/src/lib.rs) crate
 
 ## Run

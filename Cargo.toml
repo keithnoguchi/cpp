@@ -21,5 +21,6 @@ members = [
     "chat/protocol",
     "chat/packet",
     "chat/connection",
+    "chat/group",
     "chat/client",
 ]

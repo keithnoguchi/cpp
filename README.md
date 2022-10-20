@@ -32,6 +32,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 
 Here is the list of example locks explained in the book:
 
+- [Bakery Lock](ch03/sec390/src/lock.rs)
 - [SpinLock](ch04/sec70/src/lib.rs)
 - [FairLock](ch07/sec11/src/lib.rs)
 

@@ -3,6 +3,6 @@
 
 all sections: wait_while.c wait_while_volatile.c
 	$(CC) -O3 -S $^
-r run: ;
+r run: all
 c clean:
 	@$(RM) -f *.s

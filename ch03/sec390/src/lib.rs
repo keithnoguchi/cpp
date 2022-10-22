@@ -15,11 +15,16 @@ use std::result;
 /// iteration.
 pub const NR_THREADS: usize = 10;
 
+/// Counter updated by each workers protected by the BakeryLock.
+pub static mut COUNTER: u64 = 0;
+
 type Result<T> = result::Result<T, Box<dyn Error + Send>>;
 
 pub fn worker(id: u64, loops: usize) -> Result<u64> {
-    print!("worker{id}: ");
-    (0..loops).for_each(|_| print!("."));
-    println!();
+    (0..loops).for_each(|_| {
+        unsafe {
+            COUNTER += 1;
+        };
+    });
     Ok(id)
 }

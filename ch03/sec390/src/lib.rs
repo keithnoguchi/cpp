@@ -1,7 +1,7 @@
 //! 3.9.0 Bakery Lock
-mod lock;
+mod bakery;
 
-pub use lock::{BakeryLock, LockGuard};
+pub use bakery::{Lock, LockGuard};
 
 use std::error::Error;
 use std::result;
@@ -20,8 +20,8 @@ pub static mut COUNTER: u64 = 0;
 
 type Result<T> = result::Result<T, Box<dyn Error + Send>>;
 
-pub fn worker(id: u64, loops: usize) -> Result<u64> {
-    (0..loops).for_each(|_| {
+pub fn worker(id: u64, max: usize) -> Result<u64> {
+    (0..max).for_each(|_| {
         unsafe {
             COUNTER += 1;
         };

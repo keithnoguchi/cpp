@@ -3,7 +3,7 @@ use crate::NR_THREADS;
 use std::ptr::write_volatile;
 use std::sync::atomic::{fence, Ordering};
 
-pub struct BakeryLock {
+pub struct Lock {
     // The current version of the BakeryLock has a limitation of
     // the number of the threads sharing this lock statically
     // defined at the compile time.
@@ -17,7 +17,7 @@ pub struct LockGuard {
 }
 
 // Global mutable variable, woohoo! :)
-static mut LOCK: BakeryLock = BakeryLock {
+static mut LOCK: Lock = Lock {
     entering: [false; NR_THREADS],
     tickets: [None; NR_THREADS],
 };

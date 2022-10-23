@@ -13,7 +13,7 @@ use std::result;
 ///
 /// Let's see if we can make it to be dynamic in the future
 /// iteration.
-pub const NR_THREADS: usize = 10;
+pub const NR_THREADS: usize = 12;
 
 /// Counter updated by each workers protected by the BakeryLock.
 pub static mut COUNTER: u64 = 0;
@@ -21,8 +21,10 @@ pub static mut COUNTER: u64 = 0;
 type Result<T> = result::Result<T, Box<dyn Error + Send>>;
 
 pub fn worker(id: u64, max: usize) -> Result<u64> {
+    let index = id as usize;
     (0..max).for_each(|_| {
         unsafe {
+            let _guard = bakery::LOCK.lock(index);
             COUNTER += 1;
         };
     });

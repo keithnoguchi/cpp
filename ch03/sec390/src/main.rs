@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::thread::spawn;
 
 // Number of loop by the workers to lock and update the counter.
-const NR_LOOP: usize = 10_000;
+const NR_LOOP: usize = 1_000;
 
 fn main() {
     let mut args = std::env::args();
@@ -17,7 +17,7 @@ fn main() {
         .unwrap_or(NR_LOOP);
 
     println!(
-        "{:?} {} threads with {} loops",
+        "{:?} {} threads with {} loop",
         progname.file_name().unwrap(),
         NR_THREADS,
         nr_loop,

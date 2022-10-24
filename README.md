@@ -28,6 +28,11 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Semaphore](ch03/sec385/src/semaphore.rs)
 - [Channel](ch03/sec385/src/channel.rs)
 
+## Bugs in Rust
+
+- [Deadlocks](ch04/sec410/src/main.rs)
+  - [Dining Philosophers Problem with Mutex](ch04/sec410/src/mutex.rs)
+
 ## Locks
 
 Here is the list of example locks explained in the book:

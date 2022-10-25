@@ -23,5 +23,6 @@ members = [
     "chat/packet",
     "chat/connection",
     "chat/group",
+    "chat/state",
     "chat/client",
 ]

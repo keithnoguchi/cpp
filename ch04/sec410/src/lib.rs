@@ -1,5 +1,6 @@
 //! 4.1.0 Deadlock
 pub mod mutex;
+pub mod rwlock;
 
 use std::error::Error;
 

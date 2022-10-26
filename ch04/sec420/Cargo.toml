@@ -1,0 +1,9 @@
+[package]
+name = "sec420"
+version = "0.1.0"
+edition = "2021"
+authors = ["Keith Noguchi <hack@noguchi.us>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

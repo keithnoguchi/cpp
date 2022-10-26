@@ -33,6 +33,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Deadlocks](ch04/sec410/src/main.rs)
   - [Dining Philosophers Problem with Mutex](ch04/sec410/src/mutex.rs)
   - [Deadlock with RwLock](ch04/sec410/src/rwlock.rs)
+- [Livelocks](ch04/sec420/src/lib.rs)
 
 ## Locks
 

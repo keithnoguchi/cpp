@@ -1,10 +1,8 @@
 //! state crate to make the Group state
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-pub struct Table<T: Clone + Entry> {
-    table: HashMap<Arc<String>, T>,
-}
+pub struct Table<T: Clone + Entry>(Mutex<HashMap<Arc<String>, T>>);
 
 pub trait Entry {
     fn new() -> Self;
@@ -12,8 +10,7 @@ pub trait Entry {
 
 impl<T: Clone + Entry> Default for Table<T> {
     fn default() -> Self {
-        let table = HashMap::new();
-        Self { table }
+        Self(Mutex::new(HashMap::new()))
     }
 }
 
@@ -22,11 +19,12 @@ impl<T: Clone + Entry> Table<T> {
         Self::default()
     }
 
-    pub fn get(&self, key: &Arc<String>) -> Option<&T> {
-        self.table.get(key)
+    pub fn get(&self, key: &Arc<String>) -> Option<T> {
+        self.0.lock().unwrap().get(key).cloned()
     }
 
-    pub fn get_or_create(&mut self, key: Arc<String>) -> &mut T {
-        self.table.entry(key).or_insert_with(T::new)
+    pub fn get_or_create(&mut self, key: Arc<String>) -> T {
+        let mut table = self.0.lock().unwrap();
+        table.entry(key).or_insert_with(T::new).clone()
     }
 }

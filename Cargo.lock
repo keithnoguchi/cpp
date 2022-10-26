@@ -289,6 +289,7 @@ dependencies = [
  "async-std",
  "connection",
  "protocol",
+ "state",
  "tokio",
 ]
 
@@ -591,6 +592,15 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "server"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "group",
+ "state",
 ]
 
 [[package]]

@@ -2,6 +2,7 @@
 use async_std::task::spawn;
 use connection::Outbound;
 use protocol::Response;
+use state::Entry;
 use std::sync::Arc;
 use tokio::sync::broadcast::error::{RecvError, SendError};
 use tokio::sync::broadcast::{channel, Receiver, Sender};
@@ -10,17 +11,20 @@ const NR_CHANNEL_BOUNDED_SIZE: usize = 1_000;
 
 type Message = Arc<String>;
 
+#[derive(Clone)]
 pub struct Group {
     name: Arc<String>,
     tx: Sender<Message>,
 }
 
-impl Group {
-    pub fn new(name: Arc<String>) -> Self {
+impl Entry for Group {
+    fn new(name: Arc<String>) -> Self {
         let (tx, _rx) = channel(NR_CHANNEL_BOUNDED_SIZE);
         Self { name, tx }
     }
+}
 
+impl Group {
     pub fn join(&self, tx: Outbound) {
         spawn(receiver(self.name.clone(), tx, self.tx.subscribe()));
     }

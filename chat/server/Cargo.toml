@@ -1,5 +1,5 @@
 [package]
-name = "group"
+name = "server"
 version = "0.1.0"
 edition = "2021"
 authors = ["Keith Noguchi <hack@noguchi.us>"]
@@ -7,8 +7,6 @@ authors = ["Keith Noguchi <hack@noguchi.us>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-std = { version = "1.0", default-features = false }
-connection = { path = "../connection" }
-protocol = { path = "../protocol" }
+async-std = "1"
+group = { path = "../group" }
 state = { path = "../state" }
-tokio = { version = "1.0", features = ["sync"] }

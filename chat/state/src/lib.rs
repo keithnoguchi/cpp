@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 pub struct Table<T: Clone + Entry>(Mutex<HashMap<Arc<String>, T>>);
 
 pub trait Entry {
-    fn new() -> Self;
+    fn new(key: Arc<String>) -> Self;
 }
 
 impl<T: Clone + Entry> Default for Table<T> {
@@ -25,6 +25,7 @@ impl<T: Clone + Entry> Table<T> {
 
     pub fn get_or_create(&mut self, key: Arc<String>) -> T {
         let mut table = self.0.lock().unwrap();
-        table.entry(key).or_insert_with(T::new).clone()
+        let name = key.clone();
+        table.entry(key).or_insert_with(|| T::new(name)).clone()
     }
 }

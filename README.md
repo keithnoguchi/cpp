@@ -56,6 +56,7 @@ in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
 - [state](chat/state/Cargo.toml) crate
   - [Table](chat/state/src/lib.rs) type
 - [client](chat/client/src/lib.rs) crate
+- [server](chat/server/src/lib.rs) crate
 
 ## Run
 

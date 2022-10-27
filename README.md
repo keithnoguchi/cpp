@@ -59,6 +59,13 @@ in Chapter 20, Asynchronous Programming, of the wonderful [Programming Rust],
 - [client](chat/client/src/lib.rs) crate
 - [server](chat/server/src/lib.rs) crate
 
+## Decentralized Chat Client
+
+Let's implement the decentralized chat client powered by [libp2p],
+as in [libp2p example].
+
+- [dclient](dchat/dclient/src/lib.rs) crate
+
 ## Run
 
 Each sections are cargo crate to be self contained.  And since
@@ -89,3 +96,5 @@ Happy Hacking!
 [concurrent programming]: https://www.oreilly.co.jp/books/9784873119595/
 [cargo workspace]: https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html
 [programming rust]: https://github.com/ProgrammingRust
+[libp2p]: https://lib.rs/crates/libp2p
+[libp2p example]: https://github.com/libp2p/rust-libp2p/blob/master/examples/chat.rs

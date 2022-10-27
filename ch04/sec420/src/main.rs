@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::spawn;
 
 const NR_PHILOSOPHERS: usize = 2;
+const NR_BITES: usize = 50;
 
 fn main() {
     let mut args = std::env::args();
@@ -15,11 +16,17 @@ fn main() {
         .as_ref()
         .and_then(|v| usize::from_str(v).ok())
         .unwrap_or(NR_PHILOSOPHERS);
+    let nr_bites = args
+        .next()
+        .as_ref()
+        .and_then(|v| usize::from_str(v).ok())
+        .unwrap_or(NR_BITES);
 
     println!(
-        "{:?}: {} philosophers",
+        "{:?}: {} philosophers eat {} bites each",
         progname.file_name().unwrap(),
         nr_philosophers,
+        nr_bites,
     );
 
     let nr_chopsticks = nr_philosophers * 2 - 1;
@@ -35,7 +42,7 @@ fn main() {
         } else {
             [chopsticks0[id].clone(), chopsticks0[id + 1].clone()]
         };
-        philosophers.push(spawn(move || philosopher(id as u64, chopsticks)));
+        philosophers.push(spawn(move || philosopher(id as u64, chopsticks, nr_bites)));
     });
     for (id, philosopher) in philosophers.drain(..).enumerate() {
         match philosopher.join() {

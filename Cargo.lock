@@ -563,6 +563,9 @@ version = "0.1.0"
 [[package]]
 name = "sec420"
 version = "0.1.0"
+dependencies = [
+ "rand",
+]
 
 [[package]]
 name = "sec70"

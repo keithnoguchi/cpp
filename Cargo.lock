@@ -605,8 +605,8 @@ dependencies = [
  "async-std",
  "connection",
  "group",
+ "packet",
  "protocol",
- "serde_json",
  "state",
 ]
 

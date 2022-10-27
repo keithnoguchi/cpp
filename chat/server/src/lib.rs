@@ -1,5 +1,5 @@
 //! Chat Server
-use async_std::io::{prelude::BufReadExt, BufReader};
+use async_std::io::BufReader;
 use async_std::net::{TcpListener, TcpStream, ToSocketAddrs};
 use async_std::stream::StreamExt;
 use async_std::task::spawn;
@@ -38,9 +38,9 @@ where
 async fn serve(s: TcpStream, kv: Arc<Table<Group>>) -> Result<()> {
     let tx = Arc::new(Outbound::new(s.clone()));
 
-    let mut rx = BufReader::new(s).lines();
-    while let Some(line) = rx.next().await {
-        let result = match serde_json::from_str::<Request>(&line?)? {
+    let mut rx = BufReader::new(s);
+    while let Some(packet) = packet::recv(&mut rx).next().await {
+        let result = match packet? {
             Request::Join { group_name } => {
                 let group = kv.get_or_create(group_name);
                 group.join(tx.clone());

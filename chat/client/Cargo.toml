@@ -8,5 +8,6 @@ authors = ["Keith Noguchi <hack@noguchi.us>"]
 
 [dependencies]
 async-std = "1.12"
+futures-lite = "1"
 protocol = { path = "../protocol" }
 packet = { path = "../packet" }

@@ -23,7 +23,7 @@ impl<T: Clone + Entry> Table<T> {
         self.0.lock().unwrap().get(key).cloned()
     }
 
-    pub fn get_or_create(&mut self, key: Arc<String>) -> T {
+    pub fn get_or_create(&self, key: Arc<String>) -> T {
         let mut table = self.0.lock().unwrap();
         let name = key.clone();
         table.entry(key).or_insert_with(|| T::new(name)).clone()

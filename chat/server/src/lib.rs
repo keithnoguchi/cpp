@@ -1,8 +1,11 @@
 //! Chat Server
+use async_std::io::{prelude::BufReadExt, BufReader};
 use async_std::net::{TcpListener, TcpStream, ToSocketAddrs};
 use async_std::stream::StreamExt;
 use async_std::task::spawn;
+use connection::Outbound;
 use group::Group;
+use protocol::{Request, Response};
 use state::Table;
 use std::error::Error;
 use std::fmt::Display;
@@ -16,18 +19,47 @@ where
     A: ToSocketAddrs + Display,
 {
     let l = TcpListener::bind(&addr).await?;
-    let db0: Arc<Table<Group>> = Arc::new(Table::new());
+    let kv0: Arc<Table<Group>> = Arc::new(Table::new());
 
     println!("listen on {addr}");
 
     while let Some(s) = l.incoming().next().await {
         let s = s?;
-        let db = db0.clone();
-        spawn(serve(s, db));
+        let kv = kv0.clone();
+        spawn(async {
+            if let Err(e) = serve(s, kv).await {
+                eprintln!("server: {e}");
+            }
+        });
     }
     Ok(())
 }
 
-async fn serve(_s: TcpStream, _db: Arc<Table<Group>>) -> Result<()> {
-    todo!();
+async fn serve(s: TcpStream, kv: Arc<Table<Group>>) -> Result<()> {
+    let mut rx = BufReader::new(&s).lines();
+    while let Some(line) = rx.next().await {
+        let result = match serde_json::from_str::<Request>(&line?)? {
+            Request::Join { group_name } => {
+                let group = kv.get_or_create(group_name);
+                group.join(Outbound::new(s.clone()));
+                Ok(())
+            }
+            Request::Post {
+                group_name,
+                message,
+            } => match kv.get(&group_name) {
+                None => Err(format!("{group_name:?} doesn't exist")),
+                Some(group) => {
+                    group.post(message);
+                    Ok(())
+                }
+            },
+        };
+        if let Err(e) = result {
+            let resp = Response::Error(e);
+            let tx = Outbound::new(s.clone());
+            tx.send(resp).await?;
+        }
+    }
+    Ok(())
 }

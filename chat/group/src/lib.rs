@@ -25,7 +25,7 @@ impl Entry for Group {
 }
 
 impl Group {
-    pub fn join(&self, tx: Outbound) {
+    pub fn join(&self, tx: Arc<Outbound>) {
         spawn(receiver(self.name.clone(), tx, self.tx.subscribe()));
     }
 
@@ -37,7 +37,7 @@ impl Group {
     }
 }
 
-async fn receiver(group_name: Arc<String>, tx: Outbound, mut rx: Receiver<Message>) {
+async fn receiver(group_name: Arc<String>, tx: Arc<Outbound>, mut rx: Receiver<Message>) {
     loop {
         let msg = match rx.recv().await {
             Err(RecvError::Closed) => break,

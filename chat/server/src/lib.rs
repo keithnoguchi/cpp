@@ -36,12 +36,14 @@ where
 }
 
 async fn serve(s: TcpStream, kv: Arc<Table<Group>>) -> Result<()> {
-    let mut rx = BufReader::new(&s).lines();
+    let tx = Arc::new(Outbound::new(s.clone()));
+
+    let mut rx = BufReader::new(s).lines();
     while let Some(line) = rx.next().await {
         let result = match serde_json::from_str::<Request>(&line?)? {
             Request::Join { group_name } => {
                 let group = kv.get_or_create(group_name);
-                group.join(Outbound::new(s.clone()));
+                group.join(tx.clone());
                 Ok(())
             }
             Request::Post {
@@ -57,7 +59,6 @@ async fn serve(s: TcpStream, kv: Arc<Table<Group>>) -> Result<()> {
         };
         if let Err(e) = result {
             let resp = Response::Error(e);
-            let tx = Outbound::new(s.clone());
             tx.send(resp).await?;
         }
     }

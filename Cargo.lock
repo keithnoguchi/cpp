@@ -2561,6 +2561,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "sec430"
+version = "0.1.0"
+
+[[package]]
 name = "sec70"
 version = "0.1.0"
 

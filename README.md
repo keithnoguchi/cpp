@@ -38,7 +38,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 ## Algorithms in Rust
 
 - [Bakery Lock](ch03/sec390/src/bakery.rs) by [Leslie Lamport](https://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm).
-- [Banker/Detection Algorithm](ch04/sec430/src/lib.rs) by [Edsger Dijkstra](https://en.wikipedia.org/wiki/Banker%27s_algorithm)
+- [Banker/Detection Algorithm](ch04/sec430/src/banker.rs) by [Edsger Dijkstra](https://en.wikipedia.org/wiki/Banker%27s_algorithm)
 - [SpinLock](ch04/sec70/src/lib.rs)
 - [FairLock](ch07/sec11/src/lib.rs)
 

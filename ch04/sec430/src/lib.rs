@@ -1,64 +1,59 @@
 //! Dijkstra Banker Algorithm
-use std::sync::{Arc, Mutex};
+mod banker;
 
-pub struct Banker<const NR_RESOURCES: usize, const NR_CLIENTS: usize> {
-    state: Arc<Mutex<Resource<NR_RESOURCES, NR_CLIENTS>>>,
-}
+pub use banker::Banker;
 
-// This is yet another great example of the internal mutability.
-//
-// All the public functions are immutable, but internally it
-// changes the state.
-impl<const R: usize, const C: usize> Banker<R, C> {
-    pub fn new(resource: [usize; R], max: [[usize; R]; C]) -> Self {
-        let state = Resource::<R, C>::new(resource, max);
-        Self {
-            state: Arc::new(Mutex::new(state)),
+use std::error::Error;
+use std::result;
+use std::thread::sleep;
+use std::time::Duration;
+
+// 2 chopsticks to eat.
+const NR_CHOPSTICKS: usize = 2;
+const NR_BITES: usize = 20;
+const NR_BITE_DURATION: Duration = Duration::from_millis(100);
+const NR_TRIES: usize = 100;
+const NR_TRY_DELAY: Duration = Duration::from_millis(100);
+
+type Result<T> = result::Result<T, Box<dyn Error + Send>>;
+
+pub fn philosopher<const NR_RESOURCES: usize, const NR_PHILOSOPHERS: usize>(
+    id: u64,
+    chopsticks: [usize; NR_CHOPSTICKS],
+    banker: Banker<NR_RESOURCES, NR_PHILOSOPHERS>,
+) -> Result<u64> {
+    let name = format!("philosopher{id}");
+    for _ in 0..NR_BITES {
+        let id = id as usize;
+        let left = chopsticks[0];
+        if !pick_chopstick(id, left, &banker) {
+            panic!("{name} can't take left chopstick #{left}");
         }
-    }
-
-    pub fn take(&self, id: usize, resource: usize) -> bool {
-        let mut state = self.state.lock().unwrap();
-        state.take(id, resource)
-    }
-
-    pub fn release(&self, id: usize, resource: usize) {
-        let mut state = self.state.lock().unwrap();
-        state.release(id, resource)
-    }
-}
-
-// The Resource type is the actual implementation of the
-// Dijkstra Banker Algorithm.
-struct Resource<const NR_RESOURCES: usize, const NR_CLIENTS: usize> {
-    // the current available resource to release.
-    available: [usize; NR_RESOURCES],
-    // The current allocation of the resources for each client.
-    allocation: [[usize; NR_RESOURCES]; NR_CLIENTS],
-    // The maximum resources needed by each client.
-    max: [[usize; NR_RESOURCES]; NR_CLIENTS],
-}
-
-impl<const R: usize, const C: usize> Resource<R, C> {
-    fn new(available: [usize; R], max: [[usize; R]; C]) -> Self {
-        // nothing allocated yet.
-        let allocation = [[0; R]; C];
-        Self {
-            available,
-            allocation,
-            max,
+        let right = chopsticks[1];
+        if !pick_chopstick(id, right, &banker) {
+            panic!("{name} can't take right chopstick #{right}");
         }
+        sleep(NR_BITE_DURATION);
+        banker.release(id, right);
+        banker.release(id, left);
     }
+    Ok(id)
+}
 
-    fn take(&mut self, _id: usize, _resource: usize) -> bool {
-        todo!()
-    }
-
-    fn release(&mut self, _id: usize, _resource: usize) {
-        todo!()
-    }
-
-    fn is_safe(&self) -> bool {
-        todo!()
+fn pick_chopstick<const R: usize, const N: usize>(
+    id: usize,
+    chopstick_id: usize,
+    banker: &Banker<R, N>,
+) -> bool {
+    let mut tries = 0;
+    loop {
+        if banker.take(id, chopstick_id) {
+            break true;
+        }
+        tries += 1;
+        if tries == NR_TRIES {
+            break false;
+        }
+        sleep(NR_TRY_DELAY);
     }
 }

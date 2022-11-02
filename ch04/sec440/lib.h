@@ -13,7 +13,7 @@ struct recursive_lock {
 	int cnt;
 };
 
-extern void recursive_acquire(struct recursive_lock *lock, const int id);
-extern void recursive_release(struct recursive_lock *lock, const int id);
+void recursive_lock_acquire(struct recursive_lock *lock, const int id);
+void recursive_lock_release(struct recursive_lock *lock, const int id);
 
 #endif /* _LOCK_H */

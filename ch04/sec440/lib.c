@@ -6,7 +6,7 @@
 static inline void spinlock_acquire(volatile bool *lock);
 static inline void spinlock_release(volatile bool *lock);
 
-void recursive_acquire(struct recursive_lock *lock, const int id)
+void recursive_lock_acquire(struct recursive_lock *lock, const int id)
 {
 	assert(id != INIT_ID);
 	if (lock->lock && lock->id == id)
@@ -18,21 +18,27 @@ void recursive_acquire(struct recursive_lock *lock, const int id)
 	}
 }
 
-void recursive_release(struct recursive_lock *lock, const int id)
+void recursive_lock_release(struct recursive_lock *lock, const int id)
 {
-	if (lock->id != id)
-		assert(false);
+	assert(lock->id == id);
 	lock->cnt--;
+	if (lock->cnt)
+		return;
 	lock->id = INIT_ID;
 	spinlock_release(&lock->lock);
 }
 
 static inline void spinlock_acquire(volatile bool *lock)
 {
-	return;
+	/* TTAS */
+	for (;;) {
+		while (*lock);
+		if (!__sync_lock_test_and_set(lock, 1))
+			break;
+	}
 }
 
 static inline void spinlock_release(volatile bool *lock)
 {
-	return;
+	__sync_lock_release(lock);
 }

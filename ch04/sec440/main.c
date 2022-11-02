@@ -7,15 +7,31 @@
 
 #include "lib.h"
 
-#define NR_WORKERS 10
+#define NR_WORKERS 10000
+#define NR_RECURSIVE 5
+
+/* global recursive lock shared among multiple workers */
+static struct recursive_lock LOCK;
+
+/* global counter protected by the recursive lock */
+static uint64_t counter = 0;
+
+/* recursively call to demonstrate the recursive lock */
+static void countup(intptr_t id, int limit)
+{
+	if (limit == 0)
+		return;
+	recursive_lock_acquire(&LOCK, id);
+	counter++;
+	countup(id, --limit);
+	recursive_lock_release(&LOCK, id);
+}
 
 static void *worker(void *arg)
 {
 	intptr_t id = (intptr_t)arg;
-	char name[BUFSIZ];
 
-	snprintf(name, sizeof(name), "worker%ld", id);
-	printf("%s\n", name);
+	countup(id, NR_RECURSIVE);
 
 	return (void *)id;
 }
@@ -26,7 +42,8 @@ int main(int argc, const char *const argv[])
 	pthread_t *workers, *p;
 	int i;
 
-	printf("%s: recursive lock with %d workers\n", progname, NR_WORKERS);
+	printf("%s: %d recursive locks by %d workers\n",
+	       progname, NR_RECURSIVE, NR_WORKERS);
 
 	workers = malloc(sizeof(pthread_t) * NR_WORKERS);
 	if (workers == NULL)
@@ -46,6 +63,7 @@ int main(int argc, const char *const argv[])
 			goto err;
 		assert(got == id);
 	}
+	assert(counter == NR_WORKERS * NR_RECURSIVE);
 	exit(EXIT_SUCCESS);
 err:
 	perror(progname);

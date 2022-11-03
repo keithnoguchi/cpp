@@ -29,6 +29,10 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Semaphore](ch03/sec385/src/semaphore.rs)
 - [Channel](ch03/sec385/src/channel.rs)
 
+## Bugs in C
+
+- [Spurious Wakeup](ch04/sec450/lib.c)
+
 ## Bugs in Rust
 
 - [Deadlocks](ch04/sec410/src/main.rs)

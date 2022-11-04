@@ -18,6 +18,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [R/W Lock by Spinlock](ch03/sec371/lib.c)
 - [Posix R/W Lock](ch03/sec372/lib.c)
 - [Recursive Lock](ch04/sec440/lib.c)
+- [Signal Handler](ch04/sec460/lib.c)
 - [Benchmark](ch03/sec373/main.c)
 
 ## Primitives in Rust

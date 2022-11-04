@@ -8,3 +8,4 @@ all chapters: sections
 %:
 	@$(MAKE) -C sec440 $@
 	@$(MAKE) -C sec450 $@
+	@$(MAKE) -C sec460 $@

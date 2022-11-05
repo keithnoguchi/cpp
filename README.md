@@ -29,6 +29,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Memory Barrier](ch03/sec384/src/lib.rs)
 - [Semaphore](ch03/sec385/src/semaphore.rs)
 - [Channel](ch03/sec385/src/channel.rs)
+- [Signal Handler](ch04/sec461/src/lib.rs)
 
 ## Bugs in C
 

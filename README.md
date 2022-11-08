@@ -49,6 +49,10 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [SpinLock](ch04/sec470/src/lib.rs)
 - [FairLock](ch07/sec11/src/lib.rs)
 
+## Services in Rust
+
+- [Sync Echo Server](ch05/sec510/src/sync.rs)
+
 ## Asynchronous Chat Client and Server
 
 This is the example chat client and server application demonstrated

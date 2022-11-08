@@ -18,5 +18,5 @@ wait_while:
 	.cfi_endproc
 .LFE0:
 	.size	wait_while, .-wait_while
-	.ident	"GCC: (GNU) 12.1.0"
+	.ident	"GCC: (GNU) 12.2.0"
 	.section	.note.GNU-stack,"",@progbits

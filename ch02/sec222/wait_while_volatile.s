@@ -16,5 +16,5 @@ wait_while_volatile:
 	.cfi_endproc
 .LFE0:
 	.size	wait_while_volatile, .-wait_while_volatile
-	.ident	"GCC: (GNU) 12.1.0"
+	.ident	"GCC: (GNU) 12.2.0"
 	.section	.note.GNU-stack,"",@progbits

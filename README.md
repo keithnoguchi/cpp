@@ -52,6 +52,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 ## Services in Rust
 
 - [Sync Echo Server](ch05/sec510/src/lib.rs)
+- [Async Echo Server with epoll(7)](ch05/sec511/src/lib.rs)
 
 ## Asynchronous Chat Client and Server
 

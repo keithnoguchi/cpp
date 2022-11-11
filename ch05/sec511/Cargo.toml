@@ -5,4 +5,4 @@ edition = "2021"
 authors = ["Keith Noguchi <hack@noguchi.us>"]
 
 [dependencies]
-nix = "0.25"
+nix = { version = "0.25", features = ["event"] }

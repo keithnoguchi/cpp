@@ -21,6 +21,10 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Signal Handler](ch04/sec460/lib.c)
 - [Benchmark](ch03/sec373/main.c)
 
+## Bugs in C
+
+- [Spurious Wakeup](ch04/sec450/lib.c)
+
 ## Primitives in Rust
 
 - [Mutex](ch03/sec381/src/lib.rs)
@@ -30,10 +34,6 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Semaphore](ch03/sec385/src/semaphore.rs)
 - [Channel](ch03/sec385/src/channel.rs)
 - [Signal Handler](ch04/sec461/src/lib.rs)
-
-## Bugs in C
-
-- [Spurious Wakeup](ch04/sec450/lib.c)
 
 ## Bugs in Rust
 
@@ -48,6 +48,10 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 - [Banker/Detection Algorithm](ch04/sec430/src/banker.rs) by [Edsger Dijkstra](https://en.wikipedia.org/wiki/Banker%27s_algorithm)
 - [SpinLock](ch04/sec470/src/lib.rs)
 - [FairLock](ch07/sec11/src/lib.rs)
+
+## Async Primitives in Rust
+
+- [Coroutine with Future Trait](ch05/src521/src/lib.rs)
 
 ## Services in Rust
 

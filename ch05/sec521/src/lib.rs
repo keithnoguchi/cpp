@@ -1,44 +1,33 @@
-//! 5.2.1 Coroutine with Future Trait
-use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+//! Coroutine/Task with Future Trait
+use futures::future::{BoxFuture, FutureExt};
+use futures::task::ArcWake;
+use std::sync::atomic::AtomicU64;
+use std::sync::atomic::Ordering::Relaxed;
+use std::sync::{Arc, Mutex};
 
-pub struct Hello {
-    id: u64,
-    state: State,
+pub struct Task<T> {
+    pub inner: Mutex<BoxFuture<'static, T>>,
 }
 
-enum State {
-    Hello,
-    World,
-    End,
+impl<T> ArcWake for Task<T> {
+    fn wake_by_ref(_arc_self: &Arc<Self>) {}
 }
 
-impl Hello {
-    pub fn new(id: u64) -> Self {
+mod hello;
+
+static NR_TASK_ID: AtomicU64 = AtomicU64::new(0);
+
+impl Default for Task<(u64, String)> {
+    fn default() -> Self {
+        let hello = hello::Hello::new(NR_TASK_ID.fetch_add(1, Relaxed));
         Self {
-            id,
-            state: State::Hello,
+            inner: Mutex::new(hello.boxed()),
         }
     }
 }
 
-impl Future for Hello {
-    type Output = ();
-
-    fn poll(mut self: Pin<&mut Self>, _ctx: &mut Context<'_>) -> Poll<Self::Output> {
-        match self.state {
-            State::Hello => {
-                print!("{}: Hello, ", self.id);
-                self.state = State::World;
-                Poll::Pending
-            }
-            State::World => {
-                println!("{}: World!", self.id);
-                self.state = State::End;
-                Poll::Pending
-            }
-            State::End => Poll::Ready(()),
-        }
+impl Task<(u64, String)> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

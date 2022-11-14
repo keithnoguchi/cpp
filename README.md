@@ -51,7 +51,8 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 
 ## Async Primitives in Rust
 
-- [Coroutine with Future Trait](ch05/src521/src/lib.rs)
+- [Coroutine/Task with Future Trait](ch05/src521/src/hello.rs)
+  - [Simple Coroutine/Task](ch05/src521/src/lib.rs)
 
 ## Services in Rust
 

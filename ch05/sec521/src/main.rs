@@ -1,13 +1,13 @@
-//! 5.2.1 Coroutine with Future Trait
-use futures::future::{BoxFuture, FutureExt};
-use sec521::Hello;
+//! 5.2.1 Coroutine/Task with Future Trait
+use futures::task::waker_ref;
+use sec521::Task;
+use std::collections::HashSet;
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::sync::atomic::AtomicU64;
-use std::sync::atomic::Ordering::Relaxed;
-use std::sync::Mutex;
+use std::sync::Arc;
+use std::task::{Context, Poll};
 
-const NR_TASKS: usize = 10_000;
+const NR_TASKS: usize = 1_000;
 
 fn main() {
     let mut args = std::env::args();
@@ -20,21 +20,24 @@ fn main() {
 
     println!("{:?}: {} tasks", progname.file_name().unwrap(), nr_tasks);
 
+    // prepping the coroutines/tasks.
     let mut tasks = vec![];
-    (0..nr_tasks).for_each(|_| tasks.push(Task::new()));
-}
+    (0..nr_tasks).for_each(|_| tasks.push(Arc::new(Task::new())));
 
-struct Task {
-    _coroutine: Mutex<BoxFuture<'static, ()>>,
-}
-
-static NR_TASK_ID: AtomicU64 = AtomicU64::new(0);
-
-impl Task {
-    fn new() -> Self {
-        let hello = Hello::new(NR_TASK_ID.fetch_add(1, Relaxed));
-        Self {
-            _coroutine: Mutex::new(hello.boxed()),
+    // a simple executor.
+    let mut done = HashSet::new();
+    loop {
+        if done.len() == tasks.len() {
+            break;
+        }
+        for task in &tasks {
+            let waker = waker_ref(task);
+            let mut ctx = Context::from_waker(&waker);
+            let coroutine = &mut task.inner.lock().unwrap();
+            if let Poll::Ready((id, msg)) = coroutine.as_mut().poll(&mut ctx) {
+                println!("{id}: {msg}");
+                done.insert(id);
+            }
         }
     }
 }

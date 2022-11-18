@@ -1,4 +1,5 @@
 //! 5.3.1 Future by async/await
+use crate::Result;
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
@@ -16,7 +17,7 @@ enum State {
 }
 
 impl Future for Hello {
-    type Output = String;
+    type Output = Result<String>;
 
     fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.state {
@@ -37,8 +38,8 @@ impl Future for Hello {
                 Poll::Pending
             }
             State::End => match self.buf.take() {
-                Some(buf) => Poll::Ready(format!("{}: {buf}", self.id)),
-                None => panic!("we need to implement Fuse..."),
+                Some(buf) => Poll::Ready(Ok(format!("{}: {buf}", self.id))),
+                None => Poll::Ready(Err("we need to implement Fuse...")?),
             },
         }
     }

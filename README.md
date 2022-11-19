@@ -57,6 +57,8 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
   - [Task Spawner & Waker](ch05/sec522/src/task.rs)
 - [Future by async/await](ch05/sec531/src/main.rs)
   - [Single Threaded Executor, Spawner, and Waker](ch05/sec531/src/lib.rs)
+- [I/O Selector](ch05/sec532/src/lib.rs)
+  - [Task Executor, Spawner, and Waker](ch05/sec532/src/task.rs)
 
 ## Services in Rust
 

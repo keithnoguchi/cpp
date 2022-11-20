@@ -5,7 +5,9 @@ use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 use std::sync::Arc;
 use std::thread::spawn;
+use std::time::Duration;
 
+const NR_TIMEOUT: Duration = Duration::from_secs(5);
 const NR_BASE_PORT: usize = 40_000;
 const NR_LISTENERS: usize = 16;
 const NR_SPAWNERS: usize = 3;
@@ -14,6 +16,12 @@ const NR_RUN_QUEUE_BOUND: usize = 2048;
 fn main() {
     let mut args = std::env::args();
     let progname = args.next().map(PathBuf::from).unwrap();
+    let nr_timeout = args
+        .next()
+        .as_ref()
+        .and_then(|v| u64::from_str(v).ok())
+        .map(Duration::from_secs)
+        .unwrap_or(NR_TIMEOUT);
     let nr_base_port = args
         .next()
         .as_ref()
@@ -36,20 +44,25 @@ fn main() {
         .unwrap_or(NR_RUN_QUEUE_BOUND);
 
     println!(
-        "{:?}: {} listeners on {}..{} with {} run queue executor",
+        "{:?}: {} listin on {}..{} with {:?} timeout",
         progname.file_name().unwrap(),
         nr_listeners,
         nr_base_port,
         nr_base_port + nr_listeners,
-        nr_run_queue_bound,
+        nr_timeout,
     );
 
-    let executor = Executor::new(nr_run_queue_bound);
-    let _selector = Selector::new();
-    let spawner0 = executor.spawner();
+    // spawn selector.
+    let mut workers = vec![];
+    let selector0 = match Selector::new() {
+        Ok(selector) => Arc::new(selector),
+        Err(e) => panic!("{e}"),
+    };
+    workers.push(spawn(move || selector0.select(nr_timeout)));
 
     // spawn executor
-    let mut workers = vec![];
+    let executor = Executor::new(nr_run_queue_bound);
+    let spawner0 = executor.spawner();
     workers.push(spawn(move || executor.run()));
 
     // spawn listeners

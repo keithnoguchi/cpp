@@ -2635,6 +2635,7 @@ name = "sec532"
 version = "0.1.0"
 dependencies = [
  "futures",
+ "nix 0.25.0",
 ]
 
 [[package]]

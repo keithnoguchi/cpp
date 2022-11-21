@@ -1,5 +1,6 @@
 //! 5.3.2 I/O Selector with epoll(7)
-use sec532::{Executor, Selector};
+use sec532::{Executor, Reader, Selector};
+use std::io;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
@@ -9,7 +10,7 @@ use std::time::Duration;
 
 const NR_TIMEOUT: Duration = Duration::from_secs(5);
 const NR_BASE_PORT: usize = 40_000;
-const NR_LISTENERS: usize = 16;
+const NR_LISTENERS: usize = 1;
 const NR_SPAWNERS: usize = 3;
 const NR_RUN_QUEUE_BOUND: usize = 2048;
 
@@ -58,7 +59,8 @@ fn main() {
         Ok(selector) => Arc::new(selector),
         Err(e) => panic!("{e}"),
     };
-    workers.push(spawn(move || selector0.select(nr_timeout)));
+    let selector = selector0.clone();
+    workers.push(spawn(move || selector.select(nr_timeout)));
 
     // spawn executor
     let executor = Executor::new(nr_run_queue_bound);
@@ -75,13 +77,21 @@ fn main() {
         .map(Vec::<_>::from)
         .for_each(|ports| {
             let spawner = spawner0.clone();
+            let selector1 = selector0.clone();
             let counter1 = counter0.clone();
             workers.push(spawn(move || {
                 for port in ports {
+                    let selector = selector1.clone();
                     let counter = counter1.clone();
                     if let Err(e) = spawner.spawn(async move {
                         println!("{port}");
                         counter.fetch_add(1, Relaxed);
+                        let stdin = io::stdin();
+                        let mut reader = Reader::new(stdin, selector);
+                        // This blocks forever...
+                        while let Some(line) = reader.read_line().await {
+                            print!("{line}");
+                        }
                     }) {
                         panic!("{e}");
                     }

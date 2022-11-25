@@ -1,7 +1,9 @@
 //! 5.3.2 I/O Selector with epoll(7)
+mod listen;
 mod read;
 mod task;
 
+pub use crate::listen::Listener;
 pub use crate::read::Reader;
 pub use crate::task::Executor;
 

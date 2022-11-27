@@ -2,11 +2,13 @@
 use sec532::{Executor, Selector, Server};
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
+use std::process::exit;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
 use std::sync::Arc;
 use std::thread::spawn;
 use std::time::Duration;
+use tracing::{error, info};
 
 const NR_TIMEOUT: Duration = Duration::from_secs(5);
 const NR_LISTEN_ADDR: &str = "127.0.0.1";
@@ -17,7 +19,7 @@ const NR_RUN_QUEUE_BOUND: usize = 2048;
 
 fn main() {
     let mut args = std::env::args();
-    let progname = args.next().map(PathBuf::from).unwrap();
+    let _progname = args.next().map(PathBuf::from).unwrap();
     let nr_timeout = args
         .next()
         .as_ref()
@@ -50,20 +52,31 @@ fn main() {
         .and_then(|v| usize::from_str(v).ok())
         .unwrap_or(NR_RUN_QUEUE_BOUND);
 
-    println!(
-        "{:?}: listining on {}:{}..{} with {:?} timeout",
-        progname.file_name().unwrap(),
-        nr_addr,
-        nr_port_base,
-        nr_port_base + nr_listeners as u16,
-        nr_timeout,
+    tracing_subscriber::fmt()
+        .with_level(false)
+        .with_target(false)
+        .without_time()
+        .compact()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
+    info!(
+        listeners = %nr_listeners,
+        addr = %nr_addr,
+        port_min = %nr_port_base,
+        port_max = %(nr_port_base + nr_listeners as u16),
+        timeout = ?nr_timeout,
+        "echo server",
     );
 
     // spawn selector.
     let mut workers = vec![];
     let selector0 = match Selector::new() {
         Ok(selector) => Arc::new(selector),
-        Err(e) => panic!("{e}"),
+        Err(e) => {
+            error!(error = %e, "Selector::new() failure");
+            exit(1);
+        }
     };
     let selector = selector0.clone();
     workers.push(spawn(move || selector.select(nr_timeout)));
@@ -110,7 +123,7 @@ fn main() {
     drop(spawner0);
     for worker in workers.drain(..) {
         if let Err(e) = worker.join() {
-            panic!("{e:?}");
+            error!(error = ?e, "worker thread panic");
         }
     }
     assert_eq!(counter0.load(Relaxed), nr_listeners);

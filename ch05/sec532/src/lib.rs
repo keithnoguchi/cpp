@@ -23,6 +23,7 @@ use std::result;
 use std::sync::Mutex;
 use std::task::Waker;
 use std::time::Duration;
+use tracing::instrument;
 
 type Result<T> = result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 
@@ -42,6 +43,7 @@ enum Ops {
 }
 
 impl Selector {
+    #[instrument(name = "Selector::new", err)]
     pub fn new() -> Result<Self> {
         let efd = eventfd(0, EfdFlags::empty())?;
         let epfd = epoll_create1(EpollCreateFlags::empty())?;
@@ -55,6 +57,7 @@ impl Selector {
         })
     }
 
+    #[instrument(name = "Selector::select", skip(self), err)]
     pub fn select(&self, timeout: Duration) -> Result<()> {
         // register eventfd
         let mut e = EpollEvent::new(EpollFlags::EPOLLIN, self.efd as u64);
@@ -96,6 +99,7 @@ impl Selector {
         Ok(())
     }
 
+    #[instrument(name = "Selector::register", skip(self), err)]
     pub fn register(&self, flags: EpollFlags, fd: RawFd, waker: Waker) -> Result<()> {
         let mut q = self.queue.lock().unwrap();
         q.push_back(Ops::Add(flags, fd, waker));
@@ -103,6 +107,7 @@ impl Selector {
         Ok(())
     }
 
+    #[instrument(name = "Selector::unregister", skip(self), err)]
     pub fn unregister(&self, fd: RawFd) -> Result<()> {
         let mut q = self.queue.lock().unwrap();
         q.push_back(Ops::Del(fd));
@@ -110,6 +115,7 @@ impl Selector {
         Ok(())
     }
 
+    #[instrument(name = "Selector::add_event", skip(self), err)]
     fn add_event(&self, mut flags: EpollFlags, fd: RawFd, waker: Waker) -> Result<()> {
         flags |= EpollFlags::EPOLLONESHOT;
         let mut e = EpollEvent::new(flags, fd as u64);
@@ -126,6 +132,7 @@ impl Selector {
         Ok(())
     }
 
+    #[instrument(name = "Selector::del_event", skip(self), err)]
     fn del_event(&self, fd: RawFd) -> Result<()> {
         let mut e = EpollEvent::new(EpollFlags::empty(), fd as u64);
         epoll_ctl(self.epfd, EpollOp::EpollCtlDel, fd, &mut e)?;
@@ -136,11 +143,13 @@ impl Selector {
         Ok(())
     }
 
+    #[instrument(name = "Selector::read_event", err)]
     fn read_event(fd: RawFd, buf: &mut [u8; 1]) -> Result<()> {
         read(fd, buf)?;
         Ok(())
     }
 
+    #[instrument(name = "Selector::write_event", err)]
     fn write_event(fd: RawFd, n: usize) -> Result<()> {
         let ptr = &n as *const usize as *const u8;
         let val = unsafe { std::slice::from_raw_parts(ptr, std::mem::size_of_val(&n)) };

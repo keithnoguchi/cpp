@@ -2,8 +2,8 @@
 use crate::{Result, Selector};
 use nix::sys::epoll::EpollFlags;
 use std::future::Future;
-use std::io::ErrorKind::WouldBlock;
-use std::net::{TcpListener, ToSocketAddrs};
+use std::io::{BufReader, BufWriter, ErrorKind::WouldBlock};
+use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
 use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -34,11 +34,18 @@ pub struct Acceptor<'a> {
 }
 
 impl<'a> Future for Acceptor<'a> {
-    type Output = Result<String>;
+    type Output = Result<(BufWriter<TcpStream>, BufReader<TcpStream>, SocketAddr)>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.listener.internal.accept() {
-            Ok(_) => todo!(),
+            Ok((s, addr)) => {
+                let tx = match s.try_clone() {
+                    Err(e) => return Poll::Ready(Err(e)?),
+                    Ok(s) => BufWriter::new(s),
+                };
+                let rx = BufReader::new(s);
+                Poll::Ready(Ok((tx, rx, addr)))
+            }
             Err(e) if e.kind() == WouldBlock => {
                 match self.listener.selector.register(
                     EpollFlags::EPOLLIN,

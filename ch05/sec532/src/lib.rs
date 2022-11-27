@@ -1,18 +1,21 @@
 //! 5.3.2 I/O Selector with epoll(7)
+mod echo;
 mod listen;
 mod read;
 mod task;
 
-pub use crate::listen::Listener;
-pub use crate::read::Reader;
+pub use crate::echo::Server;
 pub use crate::task::Executor;
+
+pub(crate) use crate::listen::Listener;
+pub(crate) use crate::read::Reader;
 
 use nix::errno::Errno;
 use nix::sys::epoll::{epoll_create1, EpollCreateFlags};
 use nix::sys::epoll::{epoll_ctl, EpollOp};
 use nix::sys::epoll::{epoll_wait, EpollEvent, EpollFlags};
 use nix::sys::eventfd::{eventfd, EfdFlags};
-use nix::unistd::write;
+use nix::unistd::{read, write};
 use std::collections::{HashMap, VecDeque};
 use std::error::Error;
 use std::os::unix::io::RawFd;
@@ -76,6 +79,10 @@ impl Selector {
                             Ops::Del(fd) => self.del_event(fd)?,
                         }
                     }
+                    // flush the eventfd buffer to avoid the periodic
+                    // wake ups.
+                    let mut buf = [0u8; 1];
+                    Self::read_event(self.efd, &mut buf)?;
                 } else {
                     // i/o event
                     let fd = e.data() as i32;
@@ -126,6 +133,11 @@ impl Selector {
         wakers
             .remove(&fd)
             .ok_or(format!("missing event deletion: fd({fd})"))?;
+        Ok(())
+    }
+
+    fn read_event(fd: RawFd, buf: &mut [u8; 1]) -> Result<()> {
+        read(fd, buf)?;
         Ok(())
     }
 

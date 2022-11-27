@@ -39,10 +39,9 @@ impl<T: Send + 'static> Executor<T> {
             let waker = waker_ref(&task);
             let mut ctx = Context::from_waker(&waker);
             let mut fut = task.fut.lock().unwrap();
-            fut.as_mut()
-                .poll(&mut ctx)
-                .is_pending()
-                .then(|| waker.wake_by_ref());
+            if fut.as_mut().poll(&mut ctx).is_pending() {
+                println!("task is pending...");
+            }
         }
         Ok(())
     }

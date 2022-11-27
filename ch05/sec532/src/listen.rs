@@ -1,8 +1,8 @@
 //! 5.3.2 I/O Selector with epoll(7)
-use crate::{Result, Selector};
+use crate::{Reader, Result, Selector};
 use nix::sys::epoll::EpollFlags;
 use std::future::Future;
-use std::io::{BufReader, BufWriter, ErrorKind::WouldBlock};
+use std::io::{BufWriter, ErrorKind::WouldBlock};
 use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
 use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
@@ -34,7 +34,7 @@ pub struct Acceptor<'a> {
 }
 
 impl<'a> Future for Acceptor<'a> {
-    type Output = Result<(BufWriter<TcpStream>, BufReader<TcpStream>, SocketAddr)>;
+    type Output = Result<(BufWriter<TcpStream>, Reader<TcpStream>, SocketAddr)>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.listener.internal.accept() {
@@ -43,7 +43,7 @@ impl<'a> Future for Acceptor<'a> {
                     Err(e) => return Poll::Ready(Err(e)?),
                     Ok(s) => BufWriter::new(s),
                 };
-                let rx = BufReader::new(s);
+                let rx = Reader::new(s, self.listener.selector.clone());
                 Poll::Ready(Ok((tx, rx, addr)))
             }
             Err(e) if e.kind() == WouldBlock => {

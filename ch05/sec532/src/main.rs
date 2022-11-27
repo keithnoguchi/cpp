@@ -1,6 +1,6 @@
 //! 5.3.2 I/O Selector with epoll(7)
-use sec532::{Executor, Reader, Selector};
-use std::io;
+use sec532::{Executor, Selector, Server};
+use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
@@ -9,8 +9,9 @@ use std::thread::spawn;
 use std::time::Duration;
 
 const NR_TIMEOUT: Duration = Duration::from_secs(5);
-const NR_BASE_PORT: usize = 40_000;
-const NR_LISTENERS: usize = 1;
+const NR_LISTEN_ADDR: &str = "127.0.0.1";
+const NR_LISTEN_PORT_BASE: u16 = 40_000;
+const NR_LISTENERS: usize = 10;
 const NR_SPAWNERS: usize = 3;
 const NR_RUN_QUEUE_BOUND: usize = 2048;
 
@@ -23,11 +24,16 @@ fn main() {
         .and_then(|v| u64::from_str(v).ok())
         .map(Duration::from_secs)
         .unwrap_or(NR_TIMEOUT);
-    let nr_base_port = args
+    let nr_addr = args
         .next()
         .as_ref()
-        .and_then(|v| usize::from_str(v).ok())
-        .unwrap_or(NR_BASE_PORT);
+        .and_then(|v| IpAddr::from_str(v).ok())
+        .unwrap_or_else(|| IpAddr::from_str(NR_LISTEN_ADDR).unwrap());
+    let nr_port_base = args
+        .next()
+        .as_ref()
+        .and_then(|v| u16::from_str(v).ok())
+        .unwrap_or(NR_LISTEN_PORT_BASE);
     let nr_listeners = args
         .next()
         .as_ref()
@@ -45,11 +51,11 @@ fn main() {
         .unwrap_or(NR_RUN_QUEUE_BOUND);
 
     println!(
-        "{:?}: {} listin on {}..{} with {:?} timeout",
+        "{:?}: listining on {}:{}..{} with {:?} timeout",
         progname.file_name().unwrap(),
-        nr_listeners,
-        nr_base_port,
-        nr_base_port + nr_listeners,
+        nr_addr,
+        nr_port_base,
+        nr_port_base + nr_listeners as u16,
         nr_timeout,
     );
 
@@ -71,27 +77,27 @@ fn main() {
     let counter0 = Arc::new(AtomicUsize::new(0));
     (0..nr_listeners)
         .into_iter()
-        .map(|port| nr_base_port + port)
+        .map(|port| SocketAddr::new(nr_addr, nr_port_base + port as u16))
         .collect::<Vec<_>>()
         .chunks(nr_listeners / nr_spawners + 1)
         .map(Vec::<_>::from)
-        .for_each(|ports| {
+        .for_each(|addrs| {
             let spawner = spawner0.clone();
             let selector1 = selector0.clone();
             let counter1 = counter0.clone();
             workers.push(spawn(move || {
-                for port in ports {
-                    let selector = selector1.clone();
+                for addr in addrs {
                     let counter = counter1.clone();
+                    let selector = selector1.clone();
                     if let Err(e) = spawner.spawn(async move {
-                        println!("{port}");
-                        counter.fetch_add(1, Relaxed);
-                        let stdin = io::stdin();
-                        let mut reader = Reader::new(stdin, selector);
-                        // This blocks forever...
-                        while let Some(line) = reader.read_line().await {
-                            print!("{line}");
+                        let server = match Server::new(addr, selector) {
+                            Err(e) => panic!("{e}"),
+                            Ok(server) => server,
+                        };
+                        if let Err(e) = server.run().await {
+                            panic!("{e}");
                         }
+                        counter.fetch_add(1, Relaxed);
                     }) {
                         panic!("{e}");
                     }

@@ -13,7 +13,7 @@ use tracing::{error, info};
 const NR_TIMEOUT: Duration = Duration::from_secs(30);
 const NR_LISTEN_ADDR: &str = "127.0.0.1";
 const NR_LISTEN_PORT_BASE: u16 = 40_000;
-const NR_LISTENERS: usize = 1;
+const NR_LISTENERS: usize = 10;
 const NR_SPAWNERS: usize = 3;
 const NR_RUN_QUEUE_BOUND: usize = 2048;
 
@@ -56,7 +56,7 @@ fn main() {
         .with_level(true)
         .with_target(false)
         .compact()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::INFO)
         .init();
 
     info!(

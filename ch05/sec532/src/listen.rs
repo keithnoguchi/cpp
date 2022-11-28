@@ -49,6 +49,9 @@ impl<'a> Future for Acceptor<'a> {
                     Err(e) => return Poll::Ready(Err(e)?),
                     Ok(s) => BufWriter::new(s),
                 };
+                if let Err(e) = s.set_nonblocking(true) {
+                    return Poll::Ready(Err(e)?);
+                }
                 let rx = Reader::new(s, self.listener.selector.clone());
                 Poll::Ready(Ok((tx, rx, addr)))
             }

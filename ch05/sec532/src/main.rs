@@ -57,7 +57,7 @@ fn main() {
         .with_target(false)
         .without_time()
         .compact()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::TRACE)
         .init();
 
     info!(

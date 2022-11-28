@@ -23,7 +23,7 @@ use std::result;
 use std::sync::Mutex;
 use std::task::Waker;
 use std::time::Duration;
-use tracing::{debug, instrument, trace};
+use tracing::{debug, error, instrument, trace, warn};
 
 type Result<T> = result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 
@@ -123,6 +123,7 @@ impl Selector {
 
     #[instrument(name = "Selector::add_event", skip(self), err)]
     fn add_event(&self, mut flags: EpollFlags, fd: RawFd, waker: Waker) -> Result<()> {
+        trace!("start trackign event");
         flags |= EpollFlags::EPOLLONESHOT;
         let mut e = EpollEvent::new(flags, fd as u64);
         match epoll_ctl(self.epfd, EpollOp::EpollCtlAdd, fd, &mut e) {
@@ -140,8 +141,18 @@ impl Selector {
 
     #[instrument(name = "Selector::del_event", skip(self), err)]
     fn del_event(&self, fd: RawFd) -> Result<()> {
+        trace!("stop tracking event");
         let mut e = EpollEvent::new(EpollFlags::empty(), fd as u64);
-        epoll_ctl(self.epfd, EpollOp::EpollCtlDel, fd, &mut e)?;
+        match epoll_ctl(self.epfd, EpollOp::EpollCtlDel, fd, &mut e) {
+            Err(Errno::EBADF) => {
+                warn!(error = %Errno::EBADF, "connection is already closed");
+            }
+            Err(e) => {
+                error!(error = %e);
+                Err(e)?
+            }
+            Ok(()) => (),
+        }
         let mut wakers = self.wakers.lock().unwrap();
         wakers
             .remove(&fd)

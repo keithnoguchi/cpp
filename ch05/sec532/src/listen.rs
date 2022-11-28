@@ -9,7 +9,7 @@ use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 pub struct Listener {
     internal: TcpListener,
@@ -42,6 +42,7 @@ impl<'a> Future for Acceptor<'a> {
 
     #[instrument(name = "Acceptor::poll", skip(self, cx))]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        debug!("polling...");
         match self.listener.internal.accept() {
             Ok((s, addr)) => {
                 let tx = match s.try_clone() {
@@ -52,6 +53,7 @@ impl<'a> Future for Acceptor<'a> {
                 Poll::Ready(Ok((tx, rx, addr)))
             }
             Err(e) if e.kind() == WouldBlock => {
+                debug!("would block");
                 match self.listener.selector.register(
                     EpollFlags::EPOLLIN,
                     self.listener.internal.as_raw_fd(),

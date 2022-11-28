@@ -40,12 +40,15 @@ impl<T: Send + 'static> Executor<T> {
     pub fn run(self) -> Result<()> {
         drop(self.tx);
         while let Ok(task) = self.rx.recv() {
+            debug!("got task");
             let waker = waker_ref(&task);
             let mut ctx = Context::from_waker(&waker);
             let mut fut = task.fut.lock().unwrap();
+            debug!("task polling...");
             if fut.as_mut().poll(&mut ctx).is_pending() {
                 debug!("task is pending...");
             }
+            debug!("task polled");
         }
         Ok(())
     }
@@ -57,6 +60,7 @@ impl<T: Send + 'static> Spawner<T> {
     where
         F: Future<Output = T> + Send + 'static,
     {
+        debug!("spawning...");
         let task = Arc::new(Task {
             fut: Mutex::new(Box::pin(fut)),
             tx: self.tx.clone(),
@@ -64,6 +68,7 @@ impl<T: Send + 'static> Spawner<T> {
         self.tx
             .send(task)
             .map_err(|e| format!("spawn error: {e}"))?;
+        debug!("spawned");
         Ok(())
     }
 }

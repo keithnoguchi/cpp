@@ -17,6 +17,7 @@ impl Server {
     where
         A: ToSocketAddrs + Debug,
     {
+        debug!("new echo server");
         let listener = Listener::bind(addr, selector)?;
         Ok(Self { listener, spawner })
     }

@@ -69,7 +69,7 @@ impl Selector {
         let timeout = timeout.as_millis() as isize;
         let mut events = [EpollEvent::empty(); NR_MAX_MONITORING_EVENTS];
         loop {
-            trace!("waiting on epoll(7)");
+            debug!("waiting on epoll(7)");
             let nfd = epoll_wait(self.epfd, &mut events, timeout)?;
             // time out
             if nfd == 0 {
@@ -79,7 +79,7 @@ impl Selector {
             for e in events.iter().take(nfd) {
                 if e.data() == self.efd as u64 {
                     // eventfd event
-                    trace!("got eventfd event");
+                    debug!("got eventfd event");
                     let mut q = self.queue.lock().unwrap();
                     while let Some(e) = q.pop_front() {
                         match e {
@@ -93,6 +93,7 @@ impl Selector {
                     Self::read_event(self.efd, &mut buf)?;
                 } else {
                     // i/o event
+                    debug!("got i/o event");
                     let fd = e.data() as i32;
                     let mut wakers = self.wakers.lock().unwrap();
                     if let Some(waker) = wakers.remove(&fd) {
@@ -107,6 +108,7 @@ impl Selector {
 
     #[instrument(name = "Selector::register", skip(self), err)]
     pub fn register(&self, flags: EpollFlags, fd: RawFd, waker: Waker) -> Result<()> {
+        debug!("registering");
         let mut q = self.queue.lock().unwrap();
         q.push_back(Ops::Add(flags, fd, waker));
         Self::write_event(self.efd, 1)?;
@@ -115,6 +117,7 @@ impl Selector {
 
     #[instrument(name = "Selector::unregister", skip(self), err)]
     pub fn unregister(&self, fd: RawFd) -> Result<()> {
+        debug!("unregistering");
         let mut q = self.queue.lock().unwrap();
         q.push_back(Ops::Del(fd));
         Self::write_event(self.efd, 1)?;

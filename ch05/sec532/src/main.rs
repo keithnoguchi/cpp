@@ -55,7 +55,6 @@ fn main() {
     tracing_subscriber::fmt()
         .with_level(true)
         .with_target(false)
-        .without_time()
         .compact()
         .with_max_level(tracing::Level::DEBUG)
         .init();

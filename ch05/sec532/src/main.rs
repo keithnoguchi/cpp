@@ -57,7 +57,7 @@ fn main() {
         .with_target(false)
         .without_time()
         .compact()
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing::Level::DEBUG)
         .init();
 
     info!(
@@ -95,18 +95,19 @@ fn main() {
         .chunks(nr_listeners / nr_spawners + 1)
         .map(Vec::<_>::from)
         .for_each(|addrs| {
-            let spawner = spawner0.clone();
             let selector1 = selector0.clone();
+            let spawner1 = spawner0.clone();
             let counter1 = counter0.clone();
             workers.push(spawn(move || {
                 for addr in addrs {
-                    let counter = counter1.clone();
                     let selector = selector1.clone();
-                    if let Err(e) = spawner.spawn(async move {
-                        let server = match Server::new(addr, selector) {
-                            Err(e) => panic!("{e}"),
-                            Ok(server) => server,
-                        };
+                    let spawner = spawner1.clone();
+                    let counter = counter1.clone();
+                    let server = match Server::new(addr, selector, spawner) {
+                        Err(e) => panic!("{e}"),
+                        Ok(server) => server,
+                    };
+                    if let Err(e) = spawner1.spawn(async move {
                         if let Err(e) = server.run().await {
                             panic!("{e}");
                         }

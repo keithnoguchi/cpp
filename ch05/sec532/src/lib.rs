@@ -5,7 +5,7 @@ mod read;
 mod task;
 
 pub use crate::echo::Server;
-pub use crate::task::Executor;
+pub use crate::task::{Executor, Spawner};
 
 pub(crate) use crate::listen::Listener;
 pub(crate) use crate::read::Reader;
@@ -123,7 +123,7 @@ impl Selector {
 
     #[instrument(name = "Selector::add_event", skip(self), err)]
     fn add_event(&self, mut flags: EpollFlags, fd: RawFd, waker: Waker) -> Result<()> {
-        trace!("start trackign event");
+        trace!("start tracking event");
         flags |= EpollFlags::EPOLLONESHOT;
         let mut e = EpollEvent::new(flags, fd as u64);
         match epoll_ctl(self.epfd, EpollOp::EpollCtlAdd, fd, &mut e) {
@@ -154,9 +154,9 @@ impl Selector {
             Ok(()) => (),
         }
         let mut wakers = self.wakers.lock().unwrap();
-        wakers
-            .remove(&fd)
-            .ok_or(format!("missing event deletion: fd({fd})"))?;
+        if wakers.remove(&fd).is_none() {
+            warn!("missing event deletion");
+        }
         Ok(())
     }
 

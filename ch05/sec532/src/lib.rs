@@ -23,7 +23,7 @@ use std::result;
 use std::sync::Mutex;
 use std::task::Waker;
 use std::time::Duration;
-use tracing::instrument;
+use tracing::{debug, instrument, trace};
 
 type Result<T> = result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 
@@ -60,21 +60,26 @@ impl Selector {
     #[instrument(name = "Selector::select", skip(self), err)]
     pub fn select(&self, timeout: Duration) -> Result<()> {
         // register eventfd
+        trace!("register eventfd to epoll(7)");
         let mut e = EpollEvent::new(EpollFlags::EPOLLIN, self.efd as u64);
         epoll_ctl(self.epfd, EpollOp::EpollCtlAdd, self.efd, &mut e)?;
 
         // event loop
+        trace!("start epoll(7) event loop");
         let timeout = timeout.as_millis() as isize;
         let mut events = [EpollEvent::empty(); NR_MAX_MONITORING_EVENTS];
         loop {
+            trace!("waiting on epoll(7)");
             let nfd = epoll_wait(self.epfd, &mut events, timeout)?;
             // time out
             if nfd == 0 {
+                debug!("timedout on epoll(7)");
                 break;
             }
             for e in events.iter().take(nfd) {
                 if e.data() == self.efd as u64 {
                     // eventfd event
+                    trace!("got eventfd event");
                     let mut q = self.queue.lock().unwrap();
                     while let Some(e) = q.pop_front() {
                         match e {
@@ -84,7 +89,7 @@ impl Selector {
                     }
                     // flush the eventfd buffer to avoid the periodic
                     // wake ups.
-                    let mut buf = [0u8; 1];
+                    let mut buf = [0u8; 8];
                     Self::read_event(self.efd, &mut buf)?;
                 } else {
                     // i/o event
@@ -96,6 +101,7 @@ impl Selector {
                 }
             }
         }
+        debug!("finished with event loop");
         Ok(())
     }
 
@@ -144,7 +150,7 @@ impl Selector {
     }
 
     #[instrument(name = "Selector::read_event", err)]
-    fn read_event(fd: RawFd, buf: &mut [u8; 1]) -> Result<()> {
+    fn read_event(fd: RawFd, buf: &mut [u8; 8]) -> Result<()> {
         read(fd, buf)?;
         Ok(())
     }

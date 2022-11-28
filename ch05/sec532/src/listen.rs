@@ -1,6 +1,7 @@
 //! 5.3.2 I/O Selector with epoll(7)
 use crate::{Reader, Result, Selector};
 use nix::sys::epoll::EpollFlags;
+use std::fmt::Debug;
 use std::future::Future;
 use std::io::{BufWriter, ErrorKind::WouldBlock};
 use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
@@ -8,6 +9,7 @@ use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll};
+use tracing::instrument;
 
 pub struct Listener {
     internal: TcpListener,
@@ -15,15 +17,17 @@ pub struct Listener {
 }
 
 impl Listener {
+    #[instrument(name = "Listener::bind", skip(selector), err)]
     pub fn bind<A>(addrs: A, selector: Arc<Selector>) -> Result<Self>
     where
-        A: ToSocketAddrs,
+        A: ToSocketAddrs + Debug,
     {
         let internal = TcpListener::bind(addrs)?;
         internal.set_nonblocking(true)?;
         Ok(Self { internal, selector })
     }
 
+    #[instrument(name = "Listener::accept", skip(self))]
     pub fn accept(&self) -> Acceptor {
         Acceptor { listener: self }
     }
@@ -36,6 +40,7 @@ pub struct Acceptor<'a> {
 impl<'a> Future for Acceptor<'a> {
     type Output = Result<(BufWriter<TcpStream>, Reader<TcpStream>, SocketAddr)>;
 
+    #[instrument(name = "Acceptor::poll", skip(self, cx))]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.listener.internal.accept() {
             Ok((s, addr)) => {

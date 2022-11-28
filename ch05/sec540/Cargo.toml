@@ -1,0 +1,8 @@
+[package]
+name = "sec540"
+version = "0.1.0"
+edition = "2021"
+authors = ["Keith Noguchi <hack@noguchi.us>"]
+
+[dependencies]
+tokio = { version = "1.22", features = ["rt", "net"] }

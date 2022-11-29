@@ -39,10 +39,17 @@ impl Server {
                 let mut buf = String::new();
                 loop {
                     buf.clear();
-                    if let Err(e) = rx.read_line(&mut buf).await {
-                        error!(error = %e, "read_line");
-                        break;
-                    };
+                    match rx.read_line(&mut buf).await {
+                        Err(e) => {
+                            error!(error = %e, "read_line");
+                            break;
+                        }
+                        Ok(0) => {
+                            debug!("connection closed");
+                            break;
+                        }
+                        Ok(_) => (),
+                    }
                     debug!(%buf, "receive line");
                     if let Err(e) = tx.write_all(buf.as_bytes()).await {
                         error!(error = %e, "write_all");

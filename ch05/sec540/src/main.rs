@@ -2,9 +2,10 @@
 use sec540::Server;
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
+use std::process::exit;
 use std::str::FromStr;
-use std::sync::{atomic::AtomicBool, Arc};
-use std::thread::spawn;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering::Relaxed};
+use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info};
 
@@ -12,7 +13,6 @@ const NR_TIMEOUT: Duration = Duration::from_secs(10);
 const NR_LISTEN_ADDR: &str = "127.0.0.1";
 const NR_LISTEN_PORT_BASE: u16 = 60000;
 const NR_LISTENERS: usize = 10;
-const NR_SPAWNERS: usize = 3;
 
 fn main() {
     tracing_subscriber::fmt::init();
@@ -39,11 +39,6 @@ fn main() {
         .as_ref()
         .and_then(|v| usize::from_str(v).ok())
         .unwrap_or(NR_LISTENERS);
-    let nr_spawners = args
-        .next()
-        .as_ref()
-        .and_then(|v| usize::from_str(v).ok())
-        .unwrap_or(NR_SPAWNERS);
 
     info!(
         "{:?}: listen on {}:{}..{} with {:?} timeout",
@@ -54,38 +49,45 @@ fn main() {
         nr_timeout,
     );
 
-    let done0 = Arc::new(AtomicBool::new(false));
-    let mut spawners = vec![];
-    (0..nr_listeners)
-        .into_iter()
-        .collect::<Vec<_>>()
-        .chunks(nr_listeners / nr_spawners + 1)
-        .map(Vec::<_>::from)
-        .for_each(|ports| {
-            let done1 = done0.clone();
-            spawners.push(spawn(move || {
-                for port in ports {
+    // tokio runtime
+    let rt = match tokio::runtime::Runtime::new() {
+        Err(e) => {
+            error!(error = %e, "tokio runtime");
+            exit(1);
+        }
+        Ok(rt) => rt,
+    };
+
+    let success0 = Arc::new(AtomicUsize::new(0));
+    let success1 = success0.clone();
+    rt.block_on(async move {
+        // spawn async server tasks
+        let done0 = Arc::new(AtomicBool::new(false));
+        (0..nr_listeners)
+            .map(|n| nr_port_base as usize + n)
+            .for_each(|port| {
+                let success = success1.clone();
+                let done = done0.clone();
+                tokio::spawn(async move {
                     let addr = SocketAddr::new(nr_addr, port as u16);
-                    let server = match Server::bind(addr) {
+                    let server = match Server::bind(addr).await {
                         Err(e) => {
-                            error!(error = %e, "server creation");
+                            error!(error = %e, "server bind");
                             return;
                         }
                         Ok(server) => server,
                     };
-                    let done = done1.clone();
-                    tokio::spawn(async move {
-                        if let Err(e) = server.run(done).await {
-                            error!(error = %e, "server execution");
-                        }
-                    });
-                }
-            }));
-        });
+                    if let Err(e) = server.run(done).await {
+                        error!(error = %e, "server run");
+                        return;
+                    }
+                    success.fetch_add(1, Relaxed);
+                });
+            });
 
-    for spawner in spawners.drain(..) {
-        if let Err(e) = spawner.join() {
-            error!(error = ?e, "spawner crash");
-        }
-    }
+        // timeout handling
+        tokio::time::sleep(nr_timeout).await;
+        done0.store(false, Relaxed);
+    });
+    assert_eq!(success0.load(Relaxed), nr_listeners);
 }

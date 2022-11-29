@@ -3000,6 +3000,7 @@ dependencies = [
  "libc",
  "memchr",
  "mio",
+ "num_cpus",
  "pin-project-lite 0.2.9",
  "socket2",
  "winapi",

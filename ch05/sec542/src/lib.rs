@@ -11,7 +11,7 @@ type Result<T> = result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 pub async fn worker(
     mut cancel: Receiver<()>,
     counter: Arc<Mutex<usize>>,
-    nr_loop: usize,
+    nr_jobs: usize,
 ) -> Result<usize> {
     trace!("worker started");
     let mut worked = 0;
@@ -25,7 +25,7 @@ pub async fn worker(
                 *counter += 1;
                 worked += 1;
                 trace!("worker worked");
-                if worked == nr_loop {
+                if worked == nr_jobs {
                     trace!("worker done");
                     break;
                 }

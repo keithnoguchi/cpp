@@ -63,6 +63,7 @@ Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
   - [Async Reader](ch05/sec532/src/read.rs)
 - [Sync and Async Mutex](ch05/sec541/src/lib.rs)
 - [Cancel Pattern with tokio broadcast Channel](ch05/sec542/src/lib.rs)
+- [Sync and Async Workers on tokio runtime](ch05/sec543/src/main.rs)
 
 ## Services in Rust
 

@@ -1,26 +1,24 @@
-//! Sync Echo Server
-use std::error::Error;
-use std::io::{BufRead, BufReader, BufWriter, Write};
+//! Sync echo server
+#![forbid(unsafe_code, unstable_features)]
+#![warn(missing_debug_implementations)]
+use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::net::{TcpListener, ToSocketAddrs};
-use std::result;
 
-type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
+pub fn server(addr: impl ToSocketAddrs) -> io::Result<()> {
+    let listener = TcpListener::bind(addr)?;
 
-pub fn server<A: ToSocketAddrs>(a: A, max: usize) -> Result<u16> {
-    let l = TcpListener::bind(a)?;
-    let port = l.local_addr()?.port();
+    for result in listener.incoming() {
+        let socket = result?;
+        let mut writer = BufWriter::new(socket.try_clone()?);
+        let reader = BufReader::new(socket);
 
-    // takes max connections.
-    for _ in 0..max {
-        let (s, _remote) = l.accept()?;
-        let mut tx = BufWriter::new(s.try_clone()?);
-        for line in BufReader::new(s).lines() {
-            let mut buf = line?;
-            // lines() drops the line delimiter
-            buf.push('\n');
-            tx.write_all(buf.as_bytes())?;
-            tx.flush()?;
+        for result in reader.lines() {
+            let mut line = result?;
+            line.push('\n');
+            writer.write_all(line.as_bytes())?;
+            writer.flush()?;
         }
     }
-    Ok(port)
+
+    Ok(())
 }

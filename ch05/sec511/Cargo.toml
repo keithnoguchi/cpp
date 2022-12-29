@@ -2,7 +2,10 @@
 name = "sec511"
 version = "0.1.0"
 edition = "2021"
-authors = ["Keith Noguchi <hack@noguchi.us>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nix = { version = "0.25", features = ["event"] }
+nix = { version = "0.26", default-features = false, features = ["event"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"

@@ -2637,6 +2637,10 @@ version = "0.1.0"
 [[package]]
 name = "sec510"
 version = "0.1.0"
+dependencies = [
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "sec511"

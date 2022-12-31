@@ -5,3 +5,5 @@ edition = "2021"
 authors = ["Keith Noguchi <hack@noguchi.us>"]
 
 [dependencies]
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"

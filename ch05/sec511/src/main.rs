@@ -4,7 +4,7 @@ fn main() {
     tracing_subscriber::fmt::init();
     let addr = std::env::args().nth(1).unwrap_or_else(|| ADDR.to_string());
 
-    if let Err(e) = sec511::serve(addr) {
+    if let Err(e) = smol::block_on(sec511::serve(addr)) {
         eprintln!("{e}");
     }
 }

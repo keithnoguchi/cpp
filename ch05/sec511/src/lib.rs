@@ -1,24 +1,27 @@
 //! epoll echo server
 #![forbid(unsafe_code)]
 #![warn(missing_docs, missing_debug_implementations)]
-use std::io::{self, prelude::*, BufRead, BufReader, BufWriter};
-use std::net::{TcpListener, ToSocketAddrs};
+use smol::io::{BufReader, BufWriter};
+use smol::net::AsyncToSocketAddrs as ToSocketAddrs;
+use smol::net::TcpListener;
+use smol::prelude::*;
+use std::io;
 
-/// serves the echo protocol.
-pub fn serve(addr: impl ToSocketAddrs) -> io::Result<()> {
-    let listener = TcpListener::bind(addr)?;
+/// asynchronously serves the echo protocol.
+pub async fn serve(addr: impl ToSocketAddrs) -> io::Result<()> {
+    let listener = TcpListener::bind(addr).await?;
 
-    for result in listener.incoming() {
+    while let Some(result) = listener.incoming().next().await {
         let stream = result?;
 
-        let reader = BufReader::new(stream.try_clone()?);
+        let mut reader = BufReader::new(stream.clone()).lines();
         let mut writer = BufWriter::new(stream);
 
-        for result in reader.lines() {
+        while let Some(result) = reader.next().await {
             let mut line = result?;
             line.push('\n');
-            writer.write_all(line.as_bytes())?;
-            writer.flush()?;
+            writer.write_all(line.as_bytes()).await?;
+            writer.flush().await?;
         }
     }
     Ok(())

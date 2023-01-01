@@ -2646,6 +2646,9 @@ dependencies = [
 name = "sec511"
 version = "0.1.0"
 dependencies = [
+ "async-io",
+ "async-net",
+ "futures-lite",
  "smol",
  "tracing",
  "tracing-subscriber",

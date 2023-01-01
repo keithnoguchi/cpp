@@ -1,21 +1,28 @@
-//! epoll echo server
-#![forbid(unsafe_code)]
-#![warn(missing_docs, missing_debug_implementations)]
-use smol::io::{BufReader, BufWriter};
-use smol::net::AsyncToSocketAddrs as ToSocketAddrs;
-use smol::net::TcpListener;
-use smol::prelude::*;
+//! Asynchronous Echo Service
+#![forbid(unsafe_code, missing_docs, missing_debug_implementations)]
+#![warn(missing_copy_implementations)]
+use futures_lite::{AsyncBufReadExt, AsyncWriteExt, StreamExt};
+use futures_lite::io::{BufReader, BufWriter};
+use async_net::AsyncToSocketAddrs as ToSocketAddrs;
+use async_net::TcpListener;
 use std::fmt::Debug;
 use std::io;
-use tracing::instrument;
+use tracing::{debug, instrument};
 
-/// asynchronously serves the echo protocol.
+const MAX_CONNECTIONS: usize = 5; // for the cleanup handling.
+
+/// Asynchronously serve the echo service.
 #[instrument]
 pub async fn serve(addr: impl ToSocketAddrs + Debug) -> io::Result<()> {
     let listener = TcpListener::bind(addr).await?;
 
     let mut workers = vec![];
     while let Some(result) = listener.incoming().next().await {
+        debug!(
+            workers.len = %workers.len(),
+            workers.max = %MAX_CONNECTIONS,
+            "incoming connection",
+        );
         workers.push(smol::spawn(async move {
             let stream = result?;
             let mut reader = BufReader::new(stream.clone()).lines();
@@ -29,9 +36,11 @@ pub async fn serve(addr: impl ToSocketAddrs + Debug) -> io::Result<()> {
             }
             Ok::<_, io::Error>(())
         }));
+        if workers.len() >= MAX_CONNECTIONS {
+            break;
+        }
     }
-    // this won't happen unless the tcp connection is closed somehow
-    // above.
+    // cleanup.
     for worker in workers {
         worker.await?;
     }

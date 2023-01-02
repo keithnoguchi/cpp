@@ -779,6 +779,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sec512"
+version = "0.1.0"
+dependencies = [
+ "async-executor",
+ "async-io",
+ "async-lock",
+ "async-net",
+ "futures-lite",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "sec521"
 version = "0.1.0"
 dependencies = [

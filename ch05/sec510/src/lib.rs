@@ -32,9 +32,11 @@ pub fn serve(addr: impl ToSocketAddrs + Debug) -> io::Result<()> {
     for worker in workers {
         match worker.join() {
             Err(e) => error!("worker panic: {e:?}"),
-            Ok(result) => if let Err(e) = result {
-                error!("worker error: {e}");
-            },
+            Ok(result) => {
+                if let Err(e) = result {
+                    error!("worker error: {e}");
+                }
+            }
         }
     }
     Ok(())

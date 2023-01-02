@@ -1,10 +1,10 @@
 //! Asynchronous Echo Service
 #![forbid(unsafe_code, missing_docs, missing_debug_implementations)]
 #![warn(missing_copy_implementations)]
-use futures_lite::{AsyncBufReadExt, AsyncWriteExt, StreamExt};
-use futures_lite::io::{BufReader, BufWriter};
 use async_net::AsyncToSocketAddrs as ToSocketAddrs;
 use async_net::TcpListener;
+use futures_lite::io::{BufReader, BufWriter};
+use futures_lite::{AsyncBufReadExt, AsyncWriteExt, StreamExt};
 use std::fmt::Debug;
 use std::io;
 use tracing::{debug, instrument};

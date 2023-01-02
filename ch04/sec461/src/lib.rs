@@ -9,7 +9,7 @@ use std::time::Duration;
 type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 
 pub fn handler(id: u64, timeout: Duration) -> Result<u64> {
-    let mut signals = Signals::new(&[SIGUSR1])?;
+    let mut signals = Signals::new([SIGUSR1])?;
     let handle = signals.handle();
 
     // set the signal handler timeout.

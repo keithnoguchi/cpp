@@ -34,11 +34,11 @@ fn main() {
 
     (0..nr_readers).for_each(|id| {
         let lock = lock0.clone();
-        readers.push(spawn(move || reader(id as u64, lock)));
+        readers.push(spawn(move || reader(id, lock)));
     });
     (0..nr_writers).for_each(|id| {
         let lock = lock0.clone();
-        writers.push(spawn(move || writer(id as u64, lock)));
+        writers.push(spawn(move || writer(id, lock)));
     });
 
     for (id, reader) in readers.drain(..).enumerate() {

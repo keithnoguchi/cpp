@@ -39,5 +39,4 @@ members = [
     "chat/group",
     "chat/client",
     "chat/server",
-    "dchat/dclient",
 ]

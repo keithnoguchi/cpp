@@ -1,5 +1,7 @@
 # Concurrent Programming in Rust
 
+![CI](https://github.com/keithnoguchi/cpr/actions/workflows/ci.yml/badge.svg)
+
 Concurrent programming in Rust, demonstrated by [Yuuki Takano] in
 [Concurrent Programming].
 

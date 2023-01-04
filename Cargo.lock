@@ -792,6 +792,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sec513"
+version = "0.1.0"
+dependencies = [
+ "atomic-waker",
+]
+
+[[package]]
 name = "sec521"
 version = "0.1.0"
 dependencies = [

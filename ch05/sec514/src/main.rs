@@ -20,9 +20,7 @@ fn main() {
 
     let (runnable, _task) = async_task::spawn(additioner(1, 2), schedule);
 
-    let result = runnable.schedule();
-    debug!("{result:?}");
-
+    runnable.schedule();
     while let Ok(runnable) = queue.pop() {
         let result = runnable.run();
         debug!("{result}");

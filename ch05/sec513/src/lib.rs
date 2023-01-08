@@ -5,8 +5,8 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use core::future::Future;
-use core::sync::atomic::{AtomicBool, Ordering::Relaxed};
 use core::pin::Pin;
+use core::sync::atomic::{AtomicBool, Ordering::Relaxed};
 use core::task::{Context, Poll};
 
 use atomic_waker::AtomicWaker;
